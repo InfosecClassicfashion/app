@@ -114,11 +114,14 @@ export function generateSampleEDRCsv(): string {
 
 export function generateSampleAssetCsv(): string {
   const allEndpoints = Object.values(ENDPOINTS_PER_SITE).flat();
-  // Add some assets not in EDR (unprotected) and exclude some EDR endpoints (ghost)
   const extra = ['UNKNOWN-WS001', 'BYOD-LPT001', 'CONTRACTOR-001', 'PRINTER-HQ'];
-  const assets = [...allEndpoints, ...extra];
+  const allITAssets = [...allEndpoints, ...extra];
 
-  const header = '"AssetTag"';
-  const rows = assets.map((ep) => `"${ep}"`);
+  const header = '"ITAssets","S1AgentData"';
+  const rows = allITAssets.map((ep, i) => {
+    // 85% covered, 15% missing agent
+    const covered = i % 7 !== 0;
+    return `"${ep}","${covered ? ep : ''}"`;
+  });
   return [header, ...rows].join('\n');
 }

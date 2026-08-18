@@ -34,7 +34,7 @@ export function RootShell({ children }: { children: React.ReactNode }) {
           <div className="flex-1 flex flex-col overflow-hidden min-w-0">
             <Header theme={theme} onToggleTheme={() => setTheme((t) => t === 'dark' ? 'light' : 'dark')} />
             <main className="flex-1 overflow-y-auto overflow-x-hidden">
-              <div className="page-enter">
+              <div className="max-w-[1400px] mx-auto px-6 md:px-8 w-full page-enter">
                 {children}
               </div>
             </main>

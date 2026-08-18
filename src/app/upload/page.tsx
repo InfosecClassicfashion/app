@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Upload, FileCheck2, AlertCircle, Loader2, Database, Sparkles, X } from 'lucide-react';
+import { Upload, FileCheck2, AlertCircle, Loader2, Database, Sparkles, X, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useDashboard } from '@/contexts/DashboardContext';
@@ -119,7 +119,7 @@ export default function UploadPage() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-1">Upload Data</h1>
         <p className="text-sm text-[var(--text-muted)]">
-          Upload your SentinelOne EDR export and IT asset CSV files to get started.
+          Upload your SentinelOne EDR export and Asset CSV files to get started.
           Up to 3 months of EDR data are supported simultaneously.
         </p>
       </div>
@@ -158,14 +158,26 @@ export default function UploadPage() {
 
         {/* Asset CSV */}
         <DropZone
-          label="IT Asset CSV"
-          sublabel="Asset registry (AssetTag column)"
+          label="Asset CSV"
+          sublabel="Asset inventory (ITAssets & S1AgentData columns)"
           state={asset}
           accent="#06B6D4"
           inputRef={assetInputRef}
           accept=".csv"
           onFile={handleAssetFile}
           onClear={() => { setAsset(INITIAL); setParsedAssetRows([]); }}
+          extraHeaderAction={(
+            <a
+              href="/Asset_CSV_Template.csv"
+              download="Asset_CSV_Template.csv"
+              onClick={(e) => e.stopPropagation()}
+              className="text-xs text-[var(--accent-cyan)] hover:underline inline-flex items-center gap-1 font-medium z-10"
+              title="Download sample Asset CSV template"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Download Template
+            </a>
+          )}
           extraInfo={asset.rows > 0 ? (
             <div className="mt-3">
               <Badge variant="outline" className="text-[10px] border-[var(--accent-cyan)]/40 text-[var(--accent-cyan)] bg-[var(--accent-cyan)]/10">
@@ -251,11 +263,12 @@ interface DropZoneProps {
   onFile: (file: File) => void;
   onClear: () => void;
   extraInfo?: React.ReactNode;
+  extraHeaderAction?: React.ReactNode;
   onDragOver?: (e: React.DragEvent) => void;
   onDrop?: (e: React.DragEvent) => void;
 }
 
-function DropZone({ label, sublabel, state, accent, inputRef, accept, onFile, onClear, extraInfo, onDragOver, onDrop }: DropZoneProps) {
+function DropZone({ label, sublabel, state, accent, inputRef, accept, onFile, onClear, extraInfo, extraHeaderAction, onDragOver, onDrop }: DropZoneProps) {
   const isSuccess = state.rows > 0;
   const isError = state.missingColumns.length > 0 || state.errors.length > 0;
 
@@ -280,10 +293,13 @@ function DropZone({ label, sublabel, state, accent, inputRef, accept, onFile, on
         onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); }}
       />
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="text-sm font-semibold text-[var(--text-primary)]">{label}</p>
-          <p className="text-[11px] text-[var(--text-muted)]">{sublabel}</p>
+          <div className="flex items-center gap-3">
+            <p className="text-sm font-semibold text-[var(--text-primary)]">{label}</p>
+            {extraHeaderAction}
+          </div>
+          <p className="text-[11px] text-[var(--text-muted)] mt-0.5">{sublabel}</p>
         </div>
         <div className={cn(
           'w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0',

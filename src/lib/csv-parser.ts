@@ -16,7 +16,7 @@ const EDR_REQUIRED_COLUMNS = [
   'Site', 'Group', 'Originating Process',
 ];
 
-const ASSET_REQUIRED_COLUMNS = ['AssetTag'];
+const ASSET_REQUIRED_COLUMNS = ['ITAssets', 'S1AgentData'];
 
 // ============================================================
 // Parse helpers
@@ -137,9 +137,12 @@ export function parseAssetCsv(file: File): Promise<ParseResult<AssetRow>> {
         }
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const data: AssetRow[] = (results.data as any[]).map((row) => ({
-          AssetTag: String(row['AssetTag'] ?? '').trim(),
-        })).filter((r) => r.AssetTag.length > 0);
+        const data: AssetRow[] = (results.data as any[])
+          .map((row) => ({
+            ITAssets: String(row['ITAssets'] ?? '').trim(),
+            S1AgentData: String(row['S1AgentData'] ?? '').trim(),
+          }))
+          .filter((r) => r.ITAssets.length > 0 || r.S1AgentData.length > 0);
 
         resolve({ data, errors: [], missingColumns: [] });
       },

@@ -243,24 +243,46 @@ function computeAutomation(rows: EDRRow[]): AutomationStats {
 // Reconciliation
 // ============================================================
 function computeReconciliation(rows: EDRRow[], assets: AssetRow[]): ReconciliationStats {
-  const assetSet = new Set(assets.map((a) => a.AssetTag.toLowerCase().trim()));
-  const endpointSet = new Set(rows.map((r) => r.Endpoints.toLowerCase().trim()).filter(Boolean));
+  // ITAssets: full inventory of asset tags from IT
+  const itAssetsList = assets
+    .map((a) => a.ITAssets?.trim())
+    .filter((tag): tag is string => Boolean(tag && tag.length > 0));
 
-  const matched = assets.filter((a) => endpointSet.has(a.AssetTag.toLowerCase().trim()));
-  const unprotected = assets.filter((a) => !endpointSet.has(a.AssetTag.toLowerCase().trim()));
-  const ghost = rows
-    .map((r) => r.Endpoints)
-    .filter((ep) => ep && !assetSet.has(ep.toLowerCase().trim()));
-  const ghostUnique = [...new Set(ghost)];
+  const uniqueITAssets = [...new Set(itAssetsList)];
+
+  // S1AgentData: asset tags confirmed to have S1 agent installed
+  const s1AgentSet = new Set(
+    assets
+      .map((a) => a.S1AgentData?.trim().toLowerCase())
+      .filter((tag): tag is string => Boolean(tag && tag.length > 0))
+  );
+
+  const matchedAssets: string[] = [];
+  const unprotectedAssets: string[] = [];
+
+  uniqueITAssets.forEach((tag) => {
+    if (s1AgentSet.has(tag.toLowerCase())) {
+      matchedAssets.push(tag);
+    } else {
+      unprotectedAssets.push(tag);
+    }
+  });
+
+  // Ghost agents: S1AgentData entries not in ITAssets inventory
+  const itAssetSetLower = new Set(uniqueITAssets.map((t) => t.toLowerCase()));
+  const ghostEndpoints = assets
+    .map((a) => a.S1AgentData?.trim())
+    .filter((tag): tag is string => Boolean(tag && tag.length > 0 && !itAssetSetLower.has(tag.toLowerCase())));
+  const ghostUnique = [...new Set(ghostEndpoints)];
 
   return {
-    totalAssets: assets.length,
-    matched: matched.length,
-    unprotected: unprotected.length,
+    totalAssets: uniqueITAssets.length,
+    matched: matchedAssets.length,
+    unprotected: unprotectedAssets.length,
     ghostAgents: ghostUnique.length,
-    unprotectedAssets: unprotected.map((a) => a.AssetTag),
+    unprotectedAssets,
     ghostEndpoints: ghostUnique,
-    matchedAssets: matched.map((a) => a.AssetTag),
+    matchedAssets,
   };
 }
 

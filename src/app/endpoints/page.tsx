@@ -149,8 +149,8 @@ export default function EndpointsPage() {
               <h3 className="text-sm font-semibold text-[var(--text-primary)]">Endpoint Coverage</h3>
               <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
                 {hasAssets
-                  ? 'Assets from IT Asset CSV vs EDR Endpoints'
-                  : 'Upload IT Asset CSV to see coverage analysis'}
+                  ? 'Asset reconciliation (ITAssets vs S1AgentData)'
+                  : 'Upload Asset CSV to see coverage analysis'}
               </p>
             </div>
             <div className={cn(
@@ -167,7 +167,7 @@ export default function EndpointsPage() {
           {!hasAssets ? (
             <div className="flex-1 flex items-center justify-center py-8 text-[var(--text-muted)] text-sm text-center">
               No asset data uploaded.<br />
-              <a href="/upload" className="text-[var(--accent-purple)] hover:underline ml-1">Upload IT Asset CSV</a>
+              <a href="/upload" className="text-[var(--accent-purple)] hover:underline ml-1">Upload Asset CSV</a>
             </div>
           ) : (
             <>
@@ -220,18 +220,15 @@ export default function EndpointsPage() {
                       }
                     </Button>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    {missingEDR.slice(0, 40).map((tag, i) => (
-                      <div key={i} className="text-[10px] font-mono text-[var(--text-secondary)] bg-white/[0.03] border border-white/[0.06] rounded px-2 py-1.5 truncate text-center">
-                        {tag}
-                      </div>
-                    ))}
-                  </div>
-                  {missingEDR.length > 40 && (
-                    <div className="text-[10px] text-[var(--text-muted)] text-center mt-2">
-                      +{missingEDR.length - 40} more — see full list via Copy
+                  <div className="max-h-56 overflow-y-auto pr-1">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {missingEDR.map((tag, i) => (
+                        <div key={i} className="text-[10px] font-mono text-[var(--text-secondary)] bg-white/[0.03] border border-white/[0.06] rounded px-2 py-1.5 truncate text-center">
+                          {tag}
+                        </div>
+                      ))}
                     </div>
-                  )}
+                  </div>
                 </div>
               )}
 

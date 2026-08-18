@@ -33,10 +33,11 @@ export interface EDRRow {
 }
 
 // ============================================================
-// IT Asset Row
+// Asset Row (ITAssets inventory + S1AgentData agent coverage)
 // ============================================================
 export interface AssetRow {
-  AssetTag: string;
+  ITAssets: string;
+  S1AgentData: string;
 }
 
 // ============================================================
