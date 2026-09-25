@@ -6,7 +6,12 @@ import {
   ResponsiveContainer, Cell, ReferenceLine,
   RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend,
 } from 'recharts';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faArrowTrendUp,
+  faArrowTrendDown,
+  faMinus,
+} from '@fortawesome/free-solid-svg-icons';
 import { useDashboard } from '@/contexts/DashboardContext';
 import { ChartCard } from '@/components/ui/ChartCard';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -17,6 +22,7 @@ const COLORS = ['#8B5CF6', '#10B981', '#06B6D4'];
 const TooltipStyle = {
   contentStyle: { background: '#1E2638', border: '1px solid rgba(99,110,130,0.25)', borderRadius: 8, fontSize: 12 },
   labelStyle: { color: '#E2E8F0' },
+  cursor: { fill: 'rgba(255, 255, 255, 0.05)' },
 };
 
 export default function RegionalPage() {
@@ -77,7 +83,7 @@ export default function RegionalPage() {
         <TableBody>
           {siteRisks.map((row) => {
             const dir = row.delta > 0 ? 'up' : row.delta < 0 ? 'down' : 'neutral';
-            const DeltaIcon = dir === 'up' ? TrendingUp : dir === 'down' ? TrendingDown : Minus;
+            const deltaIcon = dir === 'up' ? faArrowTrendUp : dir === 'down' ? faArrowTrendDown : faMinus;
             return (
               <TableRow key={row.site} className="border-white/[0.04] data-row-hover">
                 <TableCell className="text-xs font-medium">{row.site}</TableCell>
@@ -88,7 +94,7 @@ export default function RegionalPage() {
                     'flex items-center justify-end gap-1',
                     dir === 'up' ? 'text-red-400' : dir === 'down' ? 'text-emerald-400' : 'text-slate-400'
                   )}>
-                    <DeltaIcon className="w-3 h-3" />
+                    <FontAwesomeIcon icon={deltaIcon} className="w-3 h-3" />
                     {row.delta > 0 ? '+' : ''}{row.delta}
                     {row.deltaPercent !== 0 && <span className="text-[10px] text-[var(--text-dim)]">({row.deltaPercent}%)</span>}
                   </span>
@@ -110,7 +116,7 @@ export default function RegionalPage() {
   return (
     <div className="p-6 space-y-6 page-enter">
       <div>
-        <h1 className="text-xl font-bold text-[var(--text-primary)]">Regional Threat Hotspot</h1>
+        <h1 className="text-3xl font-heading tracking-wider text-[var(--text-primary)]">Regional Threat Hotspot</h1>
         <p className="text-sm text-[var(--text-muted)] mt-0.5">
           Site-wise detection counts compared to prior month
         </p>

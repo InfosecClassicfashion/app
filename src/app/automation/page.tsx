@@ -1,7 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Zap, ShieldX, Trash2, FlaskConical } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBolt, faBan, faTrashCan, faFlask } from '@fortawesome/free-solid-svg-icons';
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { useDashboard } from '@/contexts/DashboardContext';
 import { ChartCard } from '@/components/ui/ChartCard';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -9,8 +11,8 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const AutoCard = ({
-  icon: Icon, label, value, sub, color,
-}: { icon: React.ElementType; label: string; value: number; sub: string; color: string }) => (
+  icon, label, value, sub, color,
+}: { icon: IconDefinition; label: string; value: number; sub: string; color: string }) => (
   <div className="glass-card p-5 relative overflow-hidden">
     <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: `linear-gradient(90deg, ${color}, transparent)` }} />
     <div className="flex items-start justify-between">
@@ -20,7 +22,7 @@ const AutoCard = ({
         <p className="text-[11px] text-[var(--text-dim)] mt-1">{sub}</p>
       </div>
       <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: `${color}20` }}>
-        <Icon className="w-5 h-5" style={{ color }} />
+        <FontAwesomeIcon icon={icon} className="w-5 h-5" style={{ color }} />
       </div>
     </div>
   </div>
@@ -38,12 +40,12 @@ export default function AutomationPage() {
     rows.length === 0 ? (
       <p className="text-sm text-[var(--text-muted)] py-4 text-center">{emptyMsg}</p>
     ) : (
-      <div className="overflow-auto max-h-64">
+      <div className="overflow-auto max-h-72">
         <Table>
           <TableHeader>
             <TableRow className="border-white/[0.06]">
               <TableHead className="text-xs text-[var(--text-muted)]">Endpoint</TableHead>
-              <TableHead className="text-xs text-[var(--text-muted)]">Details</TableHead>
+              <TableHead className="text-xs text-[var(--text-muted)]">Threat Details</TableHead>
               <TableHead className="text-xs text-[var(--text-muted)]">Site</TableHead>
               <TableHead className="text-xs text-[var(--text-muted)]">Date</TableHead>
             </TableRow>
@@ -69,7 +71,7 @@ export default function AutomationPage() {
     <div className="p-6 space-y-6 page-enter">
       <div>
         <div className="flex items-center gap-3 flex-wrap">
-          <h1 className="text-xl font-bold text-[var(--text-primary)]">Automation Summary</h1>
+          <h1 className="text-3xl font-heading tracking-wider text-[var(--text-primary)]">Automation Summary</h1>
           <Badge
             className="text-[10px] px-2 py-0.5 h-5 font-semibold uppercase tracking-wider border"
             style={{
@@ -78,7 +80,7 @@ export default function AutomationPage() {
               borderColor: 'rgba(245,158,11,0.3)',
             }}
           >
-            <FlaskConical className="w-3 h-3 mr-1" />
+            <FontAwesomeIcon icon={faFlask} className="w-3 h-3 mr-1" />
             Beta — under testing
           </Badge>
         </div>
@@ -88,11 +90,11 @@ export default function AutomationPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <AutoCard icon={Zap} label="Auto-Resolved" value={automation.autoResolved}
+        <AutoCard icon={faBolt} label="Auto-Resolved" value={automation.autoResolved}
           sub="Incidents resolved autonomously" color="#10B981" />
-        <AutoCard icon={ShieldX} label="Rejected Uninstall Attempts" value={automation.rejectedUninstalls}
+        <AutoCard icon={faBan} label="Rejected Uninstall Attempts" value={automation.rejectedUninstalls}
           sub="Uninstall attempts blocked" color="#EF4444" />
-        <AutoCard icon={Trash2} label="Agents Decommissioned" value={automation.decommissioned}
+        <AutoCard icon={faTrashCan} label="Agents Decommissioned" value={automation.decommissioned}
           sub="Endpoints decommissioned" color="#F59E0B" />
       </div>
 

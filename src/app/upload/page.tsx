@@ -2,7 +2,17 @@
 
 import React, { useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Upload, FileCheck2, AlertCircle, Loader2, Database, Sparkles, X, Download } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faUpload,
+  faFileCircleCheck,
+  faCircleExclamation,
+  faSpinner,
+  faDatabase,
+  faWandMagicSparkles,
+  faXmark,
+  faDownload,
+} from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useDashboard } from '@/contexts/DashboardContext';
@@ -117,7 +127,7 @@ export default function UploadPage() {
     <div className="p-8 max-w-4xl mx-auto page-enter">
       {/* Title */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-1">Upload Data</h1>
+        <h1 className="text-4xl font-heading tracking-wider text-[var(--text-primary)] mb-1">Upload Data</h1>
         <p className="text-sm text-[var(--text-muted)]">
           Upload your SentinelOne EDR export and Asset CSV files to get started.
           Up to 3 months of EDR data are supported simultaneously.
@@ -171,10 +181,10 @@ export default function UploadPage() {
               href="/Asset_CSV_Template.csv"
               download="Asset_CSV_Template.csv"
               onClick={(e) => e.stopPropagation()}
-              className="text-xs text-[var(--accent-cyan)] hover:underline inline-flex items-center gap-1 font-medium z-10"
+              className="text-xs text-[var(--accent-cyan)] hover:underline inline-flex items-center gap-1.5 font-medium z-10"
               title="Download sample Asset CSV template"
             >
-              <Download className="w-3.5 h-3.5" />
+              <FontAwesomeIcon icon={faDownload} className="w-3.5 h-3.5" />
               Download Template
             </a>
           )}
@@ -197,7 +207,7 @@ export default function UploadPage() {
           className="gap-2 border-white/10 bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.05]"
           disabled={edr.loading || asset.loading}
         >
-          <Sparkles className="w-4 h-4 text-[var(--accent-amber)]" />
+          <FontAwesomeIcon icon={faWandMagicSparkles} className="w-4 h-4 text-[var(--accent-amber)]" />
           Load Sample Data
         </Button>
 
@@ -207,9 +217,9 @@ export default function UploadPage() {
           className="gap-2 gradient-purple text-white border-0 hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {processing ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <FontAwesomeIcon icon={faSpinner} className="w-4 h-4 animate-spin" />
           ) : (
-            <Database className="w-4 h-4" />
+            <FontAwesomeIcon icon={faDatabase} className="w-4 h-4" />
           )}
           Open Dashboard →
         </Button>
@@ -306,13 +316,13 @@ function DropZone({ label, sublabel, state, accent, inputRef, accept, onFile, on
           isSuccess ? 'bg-emerald-500/15' : isError ? 'bg-red-500/15' : 'bg-[var(--bg-elevated)]',
         )}>
           {state.loading ? (
-            <Loader2 className="w-4 h-4 animate-spin text-[var(--text-muted)]" />
+            <FontAwesomeIcon icon={faSpinner} className="w-4 h-4 animate-spin text-[var(--text-muted)]" />
           ) : isSuccess ? (
-            <FileCheck2 className="w-4 h-4" style={{ color: accent }} />
+            <FontAwesomeIcon icon={faFileCircleCheck} className="w-4 h-4" style={{ color: accent }} />
           ) : isError ? (
-            <AlertCircle className="w-4 h-4 text-red-400" />
+            <FontAwesomeIcon icon={faCircleExclamation} className="w-4 h-4 text-red-400" />
           ) : (
-            <Upload className="w-4 h-4 text-[var(--text-muted)]" />
+            <FontAwesomeIcon icon={faUpload} className="w-4 h-4 text-[var(--text-muted)]" />
           )}
         </div>
       </div>
@@ -325,7 +335,7 @@ function DropZone({ label, sublabel, state, accent, inputRef, accept, onFile, on
             onClick={(e) => { e.stopPropagation(); onClear(); }}
             className="flex-shrink-0 text-[var(--text-dim)] hover:text-red-400 transition-colors"
           >
-            <X className="w-3.5 h-3.5" />
+            <FontAwesomeIcon icon={faXmark} className="w-3.5 h-3.5" />
           </button>
         </div>
       ) : (

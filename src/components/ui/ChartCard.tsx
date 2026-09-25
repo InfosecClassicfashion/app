@@ -1,7 +1,14 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { MoreHorizontal, Download, Table2, Copy, Check } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faEllipsis,
+  faDownload,
+  faTable,
+  faCopy,
+  faCheck,
+} from '@fortawesome/free-solid-svg-icons';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -105,7 +112,7 @@ export function ChartCard({ title, subtitle, chartId, className, children, table
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="text-sm font-semibold text-[var(--text-primary)]">{title}</h3>
+          <h3 className="text-lg font-heading tracking-wider text-[var(--text-primary)]">{title}</h3>
           {subtitle && (
             <p className="text-[11px] text-[var(--text-muted)] mt-0.5">{subtitle}</p>
           )}
@@ -122,7 +129,7 @@ export function ChartCard({ title, subtitle, chartId, className, children, table
               )}
               title={showTable ? 'Show chart' : 'Show table'}
             >
-              <Table2 className="w-3.5 h-3.5" />
+              <FontAwesomeIcon icon={faTable} className="w-3.5 h-3.5" />
             </Button>
           )}
           {/* Quick copy button */}
@@ -138,7 +145,11 @@ export function ChartCard({ title, subtitle, chartId, className, children, table
             )}
             title="Copy data as table"
           >
-            {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? (
+              <FontAwesomeIcon icon={faCheck} className="w-3.5 h-3.5" />
+            ) : (
+              <FontAwesomeIcon icon={faCopy} className="w-3.5 h-3.5" />
+            )}
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger render={
@@ -147,7 +158,7 @@ export function ChartCard({ title, subtitle, chartId, className, children, table
                 size="icon"
                 className="h-7 w-7 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/[0.05]"
               >
-                <MoreHorizontal className="w-3.5 h-3.5" />
+                <FontAwesomeIcon icon={faEllipsis} className="w-3.5 h-3.5" />
               </Button>
             } />
             <DropdownMenuContent
@@ -158,7 +169,7 @@ export function ChartCard({ title, subtitle, chartId, className, children, table
                 onClick={handleExportPng}
                 className="text-xs cursor-pointer focus:bg-white/[0.05]"
               >
-                <Download className="w-3 h-3 mr-2" />
+                <FontAwesomeIcon icon={faDownload} className="w-3 h-3 mr-2" />
                 Export PNG
               </DropdownMenuItem>
               {tableContent && (
@@ -166,7 +177,7 @@ export function ChartCard({ title, subtitle, chartId, className, children, table
                   onClick={() => setShowTable((s) => !s)}
                   className="text-xs cursor-pointer focus:bg-white/[0.05]"
                 >
-                  <Table2 className="w-3 h-3 mr-2" />
+                  <FontAwesomeIcon icon={faTable} className="w-3 h-3 mr-2" />
                   {showTable ? 'Show Chart' : 'View Table'}
                 </DropdownMenuItem>
               )}
@@ -174,7 +185,7 @@ export function ChartCard({ title, subtitle, chartId, className, children, table
                 onClick={handleCopy}
                 className="text-xs cursor-pointer focus:bg-white/[0.05]"
               >
-                <Copy className="w-3 h-3 mr-2" />
+                <FontAwesomeIcon icon={faCopy} className="w-3 h-3 mr-2" />
                 Copy Data
               </DropdownMenuItem>
             </DropdownMenuContent>

@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { AlertTriangle, Clock } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTriangleExclamation, faClock } from '@fortawesome/free-solid-svg-icons';
 import { useDashboard } from '@/contexts/DashboardContext';
 import { ChartCard } from '@/components/ui/ChartCard';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -20,14 +20,14 @@ export default function PersistentPage() {
     return (
       <div className="p-6 page-enter">
         <div className="mb-6">
-          <h1 className="text-xl font-bold text-[var(--text-primary)]">Persistent Risky Endpoints</h1>
+          <h1 className="text-3xl font-heading tracking-wider text-[var(--text-primary)]">Persistent Risky Endpoints</h1>
           <p className="text-sm text-[var(--text-muted)] mt-0.5">
             Endpoints appearing across multiple months
           </p>
         </div>
         <div className="glass-card p-8 flex flex-col items-center gap-4 text-center">
           <div className="w-12 h-12 rounded-xl bg-[var(--bg-elevated)] flex items-center justify-center">
-            <Clock className="w-6 h-6 text-[var(--text-dim)]" />
+            <FontAwesomeIcon icon={faClock} className="w-6 h-6 text-[var(--text-dim)]" />
           </div>
           <div>
             <p className="text-sm font-medium text-[var(--text-secondary)]">No persistent endpoints detected</p>
@@ -44,7 +44,7 @@ export default function PersistentPage() {
     <div className="p-6 space-y-6 page-enter">
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-xl font-bold text-[var(--text-primary)]">Persistent Risky Endpoints</h1>
+          <h1 className="text-3xl font-heading tracking-wider text-[var(--text-primary)]">Persistent Risky Endpoints</h1>
           <p className="text-sm text-[var(--text-muted)] mt-0.5">
             Endpoints with repeated detections across multiple months — ranked by recurrence score
           </p>
@@ -52,7 +52,7 @@ export default function PersistentPage() {
         <Badge
           className="text-xs bg-amber-500/15 text-amber-300 border-amber-500/30"
         >
-          <AlertTriangle className="w-3 h-3 mr-1" />
+          <FontAwesomeIcon icon={faTriangleExclamation} className="w-3 h-3 mr-1" />
           {recurringEndpoints.length} endpoints at risk
         </Badge>
       </div>

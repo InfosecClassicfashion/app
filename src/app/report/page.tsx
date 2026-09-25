@@ -1,20 +1,26 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import { FileText, Download, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faFileLines,
+  faDownload,
+  faSpinner,
+  faCircleCheck,
+  faCircleExclamation,
+  faEye,
+} from '@fortawesome/free-solid-svg-icons';
 import { useDashboard } from '@/contexts/DashboardContext';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ReportDocument } from '@/components/report/ReportDocument';
 
 type ExportStatus = 'idle' | 'generating' | 'done' | 'error';
 
 export default function ReportPage() {
   const { analytics, months, reportingMonth, hasData, edrRows } = useDashboard();
-  const reportRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<ExportStatus>('idle');
   const [statusMsg, setStatusMsg] = useState('');
 
@@ -40,40 +46,54 @@ export default function ReportPage() {
     }, 2000);
   };
 
-  // ---- PDF Export ----
+  // Helper to generate the react-pdf blob
+  const generatePdfBlob = async (): Promise<Blob> => {
+    const { pdf } = await import('@react-pdf/renderer');
+    const { ReportDocument } = await import('@/components/report/ReportDocument');
+
+    const docElement = (
+      <ReportDocument
+        analytics={analytics}
+        months={months}
+        reportingMonth={reportingMonth}
+      />
+    );
+
+    return await pdf(docElement).toBlob();
+  };
+
+  // ---- PDF Export (react-pdf/renderer) ----
   const handlePdfExport = async () => {
     setStatus('generating');
-    setStatusMsg('Capturing pages…');
+    setStatusMsg('Compiling vector PDF document with @react-pdf/renderer…');
     try {
-      const { default: jsPDF } = await import('jspdf');
-      const { default: html2canvas } = await import('html2canvas');
-
-      const reportEl = reportRef.current;
-      if (!reportEl) throw new Error('Report element not found');
-
-      const pages = reportEl.querySelectorAll<HTMLElement>('.pdf-page');
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: [794, 1123] });
-
-      for (let i = 0; i < pages.length; i++) {
-        setStatusMsg(`Rendering page ${i + 1} of ${pages.length}…`);
-        const canvas = await html2canvas(pages[i], {
-          scale: 2, useCORS: true, allowTaint: false,
-          backgroundColor: i === 0 ? '#0B0E1A' : '#FFFFFF',
-          logging: false,
-        });
-        const imgData = canvas.toDataURL('image/png');
-        if (i > 0) pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, 0, 794, 1123, undefined, 'FAST');
-      }
-
+      const pdfBlob = await generatePdfBlob();
       const safeMonth = (reportingMonth || 'monthly').replace(/[^a-zA-Z0-9_-]/g, '_');
-      const filename = `EDR_Report_${safeMonth}.pdf`;
-      const pdfBlob = pdf.output('blob');
+      const filename = `EDR_Security_Report_${safeMonth}.pdf`;
       triggerFileDownload(pdfBlob, filename);
 
       setStatus('done');
       setStatusMsg(`Downloaded: ${filename}`);
     } catch (err) {
+      console.error('PDF export failed:', err);
+      setStatus('error');
+      setStatusMsg(String(err));
+    }
+  };
+
+  // ---- PDF In-Browser Preview ----
+  const handlePreviewPdf = async () => {
+    setStatus('generating');
+    setStatusMsg('Rendering PDF for preview…');
+    try {
+      const pdfBlob = await generatePdfBlob();
+      const previewUrl = URL.createObjectURL(pdfBlob);
+      window.open(previewUrl, '_blank');
+
+      setStatus('done');
+      setStatusMsg('Report preview opened in new tab');
+    } catch (err) {
+      console.error('PDF preview failed:', err);
       setStatus('error');
       setStatusMsg(String(err));
     }
@@ -82,103 +102,180 @@ export default function ReportPage() {
   // ---- DOCX Export ----
   const handleDocxExport = async () => {
     setStatus('generating');
-    setStatusMsg('Building DOCX…');
+    setStatusMsg('Building DOCX report…');
     try {
-      const { Document, Packer, Paragraph, TextRun, HeadingLevel, Table: DocxTable,
-        TableRow: DocxRow, TableCell: DocxCell, WidthType, AlignmentType } = await import('docx');
-      const { default: html2canvas } = await import('html2canvas');
-      const { ImageRun } = await import('docx');
+      const {
+        Document, Packer, Paragraph, TextRun, HeadingLevel, Table,
+        TableRow, TableCell, WidthType, AlignmentType,
+      } = await import('docx');
 
-      const reportEl = reportRef.current;
-      if (!reportEl) throw new Error('Report element not found');
+      const safeMonth = (reportingMonth || 'monthly').replace(/[^a-zA-Z0-9_-]/g, '_');
+      const filename = `EDR_Security_Report_${safeMonth}.docx`;
 
-      const pages = reportEl.querySelectorAll<HTMLElement>('.pdf-page');
-      const imageRuns: InstanceType<typeof ImageRun>[] = [];
-
-      for (let i = 0; i < pages.length; i++) {
-        setStatusMsg(`Capturing page ${i + 1} of ${pages.length}…`);
-        const canvas = await html2canvas(pages[i], {
-          scale: 1.5, useCORS: true, allowTaint: false,
-          backgroundColor: i === 0 ? '#0B0E1A' : '#FFFFFF', logging: false,
+      const createHeaderCell = (text: string) =>
+        new TableCell({
+          width: { size: 3000, type: WidthType.DXA },
+          children: [new Paragraph({ children: [new TextRun({ text, bold: true, color: 'FFFFFF' })] })],
+          shading: { fill: '1E293B' },
         });
-        const blob = await new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b!), 'image/png'));
-        const buf = await blob.arrayBuffer();
-        imageRuns.push(new ImageRun({
-          data: buf,
-          transformation: { width: 600, height: Math.round(600 * (1123 / 794)) },
-          type: 'png',
-        }));
-      }
 
-      setStatusMsg('Assembling document…');
+      const createCell = (text: string) =>
+        new TableCell({
+          width: { size: 3000, type: WidthType.DXA },
+          children: [new Paragraph({ children: [new TextRun({ text })] })],
+        });
+
+      // Executive Summary KPIs table
+      const kpiRows = [
+        new TableRow({
+          children: [
+            createHeaderCell('KPI Metric'),
+            createHeaderCell('Value'),
+            createHeaderCell('Previous'),
+          ],
+        }),
+        ...analytics.kpis.slice(0, 4).map(
+          (k) =>
+            new TableRow({
+              children: [
+                createCell(k.label),
+                createCell(String(k.value)),
+                createCell(k.previous !== undefined ? String(k.previous) : '—'),
+              ],
+            })
+        ),
+      ];
+
+      // Top Alerts table
+      const alertRows = [
+        new TableRow({
+          children: [
+            createHeaderCell('Alert Classification'),
+            createHeaderCell('Incident Count'),
+          ],
+        }),
+        ...analytics.classificationDist.slice(0, 8).map(
+          (c) =>
+            new TableRow({
+              children: [
+                createCell(c.name),
+                createCell(c.value.toLocaleString()),
+              ],
+            })
+        ),
+      ];
 
       const doc = new Document({
-        sections: [{
-          properties: {},
-          children: [
-            new Paragraph({
-              text: `EDR Monthly Security Report — ${reportLabel}`,
-              heading: HeadingLevel.HEADING_1,
-            }),
-            new Paragraph({ text: `Generated: ${new Date().toLocaleDateString()}` }),
-            new Paragraph({ text: '' }),
-            ...imageRuns.map((ir) => new Paragraph({ children: [ir] })),
-          ],
-        }],
+        sections: [
+          {
+            properties: {},
+            children: [
+              new Paragraph({
+                text: `EDR Monthly Security Report — ${reportLabel}`,
+                heading: HeadingLevel.HEADING_1,
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: `Generated: ${new Date().toLocaleDateString()} | Target Account: Acme Corp`, italics: true, color: '64748B' }),
+                ],
+              }),
+              new Paragraph({ text: '' }),
+              new Paragraph({
+                text: 'Executive Summary Key Performance Indicators',
+                heading: HeadingLevel.HEADING_2,
+              }),
+              new Table({
+                width: { size: 100, type: WidthType.PERCENTAGE },
+                rows: kpiRows,
+              }),
+              new Paragraph({ text: '' }),
+              new Paragraph({
+                text: 'Alert Classification Breakdown',
+                heading: HeadingLevel.HEADING_2,
+              }),
+              new Table({
+                width: { size: 100, type: WidthType.PERCENTAGE },
+                rows: alertRows,
+              }),
+              new Paragraph({ text: '' }),
+              new Paragraph({
+                text: 'Incident Resolution Velocities',
+                heading: HeadingLevel.HEADING_2,
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text: `Total Detections: ${analytics.kpis[0]?.value ?? '0'} | Resolved: ${analytics.kpis[1]?.value ?? '0'} | Active Endpoints: ${analytics.kpis[3]?.value ?? '0'}`,
+                  }),
+                ],
+              }),
+            ],
+          },
+        ],
       });
 
       const buf = await Packer.toBuffer(doc);
-      const blob = new Blob([new Uint8Array(buf)], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-      const safeMonth = (reportingMonth || 'monthly').replace(/[^a-zA-Z0-9_-]/g, '_');
-      const filename = `EDR_Report_${safeMonth}.docx`;
+      const blob = new Blob([new Uint8Array(buf)], {
+        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      });
       triggerFileDownload(blob, filename);
 
       setStatus('done');
       setStatusMsg(`Downloaded: ${filename}`);
     } catch (err) {
+      console.error('DOCX export failed:', err);
       setStatus('error');
       setStatusMsg(String(err));
     }
   };
 
   const isGenerating = status === 'generating';
-
-  const StatusIcon = status === 'done' ? CheckCircle2 : status === 'error' ? AlertCircle : FileText;
-  const statusColor = status === 'done' ? '#10B981' : status === 'error' ? '#EF4444' : '#8B5CF6';
+  const statusIcon = status === 'done' ? faCircleCheck : status === 'error' ? faCircleExclamation : faFileLines;
+  const statusColor = status === 'done' ? '#10B981' : status === 'error' ? '#EF4444' : '#2563EB';
 
   return (
     <div className="p-6 space-y-6 page-enter">
       <div>
-        <h1 className="text-xl font-bold text-[var(--text-primary)]">Generate Report</h1>
+        <h1 className="text-3xl font-heading tracking-wider text-[var(--text-primary)]">Generate Report</h1>
         <p className="text-sm text-[var(--text-muted)] mt-0.5">
-          Export a professional monthly EDR report for {reportLabel}
+          Export an executive monthly EDR security report for {reportLabel}
         </p>
       </div>
 
       {/* Report card */}
-      <div className="glass-card p-6 max-w-2xl">
+      <div className="glass-card p-6 max-w-2xl border border-white/[0.08]">
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-xl gradient-purple flex items-center justify-center flex-shrink-0 glow-purple">
-            <FileText className="w-6 h-6 text-white" />
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-600/25">
+            <FontAwesomeIcon icon={faFileLines} className="w-6 h-6 text-white" />
           </div>
           <div className="flex-1">
-            <h2 className="text-base font-bold text-[var(--text-primary)]">
-              Monthly EDR Security Report — {reportLabel}
-            </h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-heading tracking-wider text-[var(--text-primary)]">
+                Monthly EDR Security Report — {reportLabel}
+              </h2>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/25">
+                react-pdf
+              </span>
+            </div>
             <p className="text-sm text-[var(--text-muted)] mt-1">
-              {edrRows.length.toLocaleString()} incidents · {months.length} month{months.length !== 1 ? 's' : ''} of data
+              {edrRows.length.toLocaleString()} incidents · {months.length} month{months.length !== 1 ? 's' : ''} of telemetry data
             </p>
 
             {/* Sections list */}
             <div className="mt-4 grid grid-cols-2 gap-1.5">
               {[
-                'Cover Page', 'Table of Contents', 'Executive Summary',
-                'Alert Analysis', 'Endpoint Summary', 'Regional Hotspot',
-                'Persistent Endpoints', 'Resolution Status',
-                'Asset Reconciliation',
+                '01. Executive Cover Page',
+                '02. Table of Contents',
+                '03. Executive Summary',
+                '04. Alert Analysis (MoM)',
+                '05. Endpoint Detections',
+                '06. Regional Threat Hotspots',
+                '07. Persistent Risky Endpoints',
+                '08. Incident Resolution Status',
+                '09. Asset Reconciliation',
               ].map((section) => (
                 <div key={section} className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-purple)] flex-shrink-0" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0" />
                   {section}
                 </div>
               ))}
@@ -186,54 +283,72 @@ export default function ReportPage() {
           </div>
         </div>
 
-        {/* Status */}
+        {/* Status banner */}
         {status !== 'idle' && (
-          <div className="mt-4 p-3 rounded-lg border border-white/[0.06] bg-[var(--bg-elevated)] flex items-center gap-3">
+          <div className="mt-4 p-3 rounded-lg border border-white/[0.08] bg-[var(--bg-elevated)] flex items-center gap-3">
             {isGenerating ? (
-              <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" style={{ color: statusColor }} />
+              <FontAwesomeIcon icon={faSpinner} className="w-4 h-4 animate-spin flex-shrink-0" style={{ color: statusColor }} />
             ) : (
-              <StatusIcon className="w-4 h-4 flex-shrink-0" style={{ color: statusColor }} />
+              <FontAwesomeIcon icon={statusIcon} className="w-4 h-4 flex-shrink-0" style={{ color: statusColor }} />
             )}
             <p className="text-xs text-[var(--text-secondary)]">{statusMsg}</p>
           </div>
         )}
 
-        {/* Export button */}
-        <div className="mt-5 flex gap-3">
+        {/* Export & Preview buttons */}
+        <div className="mt-5 flex items-center gap-3">
           <DropdownMenu>
             <DropdownMenuTrigger render={
               <Button
                 disabled={isGenerating}
-                className="gap-2 gradient-purple text-white border-0 hover:opacity-90 disabled:opacity-50"
+                className="gap-2 bg-blue-600 hover:bg-blue-500 text-white border-0 shadow-md shadow-blue-600/25 disabled:opacity-50"
               >
                 {isGenerating ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <FontAwesomeIcon icon={faSpinner} className="w-4 h-4 animate-spin" />
                 ) : (
-                  <Download className="w-4 h-4" />
+                  <FontAwesomeIcon icon={faDownload} className="w-4 h-4" />
                 )}
                 {isGenerating ? 'Generating…' : 'Export Report'}
               </Button>
             } />
             <DropdownMenuContent
               align="start"
-              className="bg-[var(--bg-elevated)] border-white/10 text-[var(--text-primary)] w-48"
+              className="bg-[var(--bg-elevated)] border-white/10 text-[var(--text-primary)] w-52"
             >
               <DropdownMenuItem
                 onClick={handlePdfExport}
                 className="text-sm cursor-pointer focus:bg-white/[0.05]"
               >
-                <FileText className="w-4 h-4 mr-2 text-red-400" />
-                Export as PDF
+                <FontAwesomeIcon icon={faFileLines} className="w-4 h-4 mr-2 text-blue-400" />
+                Export as PDF (react-pdf)
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={handlePreviewPdf}
+                className="text-sm cursor-pointer focus:bg-white/[0.05]"
+              >
+                <FontAwesomeIcon icon={faEye} className="w-4 h-4 mr-2 text-emerald-400" />
+                Preview PDF in New Tab
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={handleDocxExport}
                 className="text-sm cursor-pointer focus:bg-white/[0.05]"
               >
-                <FileText className="w-4 h-4 mr-2 text-blue-400" />
+                <FontAwesomeIcon icon={faFileLines} className="w-4 h-4 mr-2 text-indigo-400" />
                 Export as Word (.docx)
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={isGenerating}
+            onClick={handlePreviewPdf}
+            className="text-xs gap-1.5 border-white/10 text-[var(--text-secondary)] hover:text-white"
+          >
+            <FontAwesomeIcon icon={faEye} className="w-3.5 h-3.5 text-emerald-400" />
+            Quick Preview
+          </Button>
 
           {status !== 'idle' && (
             <Button
@@ -248,19 +363,8 @@ export default function ReportPage() {
         </div>
 
         <p className="text-[11px] text-[var(--text-dim)] mt-3">
-          PDF/DOCX generation captures 9 A4 pages and may take 15–30 seconds.
+          Vector rendering with @react-pdf/renderer produces high-resolution, selectable PDF documents in 1–2 seconds.
         </p>
-      </div>
-
-      {/* Hidden offscreen report for capture */}
-      <div ref={reportRef} aria-hidden="true">
-        {analytics && (
-          <ReportDocument
-            analytics={analytics}
-            months={months}
-            reportingMonth={reportingMonth}
-          />
-        )}
       </div>
     </div>
   );

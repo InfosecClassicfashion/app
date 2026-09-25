@@ -3,21 +3,46 @@
 import React, { useState } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, PieChart, Pie, Cell, Legend,
+  ResponsiveContainer, PieChart, Pie, Cell, Legend, LabelList,
 } from 'recharts';
 import { useDashboard } from '@/contexts/DashboardContext';
 import { ChartCard } from '@/components/ui/ChartCard';
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from '@/components/ui/chart';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Shield, ShieldAlert, Check, Copy, CheckCircle2 } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faShieldHalved,
+  faShieldVirus,
+  faCircleCheck,
+  faCopy,
+  faArrowTrendUp,
+  faCheck,
+} from '@fortawesome/free-solid-svg-icons';
 import { cn } from '@/lib/utils';
 
 const COLORS = ['#8B5CF6','#10B981','#06B6D4','#F59E0B','#EF4444','#F43F5E','#3B82F6','#A78BFA'];
 const TooltipStyle = {
   contentStyle: { background: '#1E2638', border: '1px solid rgba(99,110,130,0.25)', borderRadius: 8, fontSize: 12 },
   labelStyle: { color: '#E2E8F0' },
+  cursor: { fill: 'rgba(255, 255, 255, 0.05)' },
 };
+
+const endpointChartConfig = {
+  count: {
+    label: 'Detections',
+    color: 'var(--chart-2)',
+  },
+  label: {
+    color: 'var(--background)',
+  },
+} satisfies ChartConfig;
 
 export default function EndpointsPage() {
   const { analytics, hasData, assetRows } = useDashboard();
@@ -85,7 +110,7 @@ export default function EndpointsPage() {
   return (
     <div className="p-6 space-y-6 page-enter">
       <div>
-        <h1 className="text-xl font-bold text-[var(--text-primary)]">Endpoint Summary</h1>
+        <h1 className="text-3xl font-heading tracking-wider text-[var(--text-primary)]">Endpoint Summary</h1>
         <p className="text-sm text-[var(--text-muted)] mt-0.5">
           Per-endpoint detection counts, agent versions, and EDR coverage analysis
         </p>
@@ -101,18 +126,64 @@ export default function EndpointsPage() {
           copyData={topEndpoints.map((ep, i) => ({ Rank: i + 1, Endpoint: ep.endpoint, Detections: ep.count }))}
           className="lg:col-span-2"
         >
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={topEndpoints.slice(0, 15)} layout="vertical" margin={{ left: 16, right: 24 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(99,110,130,0.15)" horizontal={false} />
-              <XAxis type="number" tick={{ fontSize: 11, fill: '#64748B' }} />
-              <YAxis dataKey="endpoint" type="category" tick={{ fontSize: 10, fill: '#64748B' }} width={120} />
-              <Tooltip
-                {...TooltipStyle}
-                formatter={(v) => [v, 'Detections']}
-              />
-              <Bar dataKey="count" fill="#8B5CF6" radius={[0, 4, 4, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="flex flex-col gap-3">
+            <ChartContainer config={endpointChartConfig} className="w-full aspect-auto h-[420px]">
+              <BarChart
+                accessibilityLayer
+                data={topEndpoints.slice(0, 15)}
+                layout="vertical"
+                margin={{
+                  right: 24,
+                }}
+              >
+                <CartesianGrid horizontal={false} />
+                <YAxis
+                  dataKey="endpoint"
+                  type="category"
+                  tickLine={false}
+                  tickMargin={10}
+                  axisLine={false}
+                  hide
+                />
+                <XAxis dataKey="count" type="number" hide />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent indicator="line" />}
+                />
+                <Bar dataKey="count" fill="var(--color-count)" radius={4}>
+                  <LabelList
+                    dataKey="endpoint"
+                    position="insideLeft"
+                    offset={8}
+                    className="fill-(--color-label) font-mono"
+                    fontSize={12}
+                  />
+                  <LabelList
+                    dataKey="count"
+                    position="right"
+                    offset={8}
+                    className="fill-foreground font-medium"
+                    fontSize={12}
+                  />
+                </Bar>
+              </BarChart>
+            </ChartContainer>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-3 border-t border-white/[0.06] text-sm">
+              <div className="flex items-center gap-2 leading-none font-medium text-[var(--text-primary)]">
+                {topEndpoints.length > 0 ? (
+                  <>
+                    <span>Highest volume: <span className="font-mono text-emerald-400">{topEndpoints[0]?.endpoint}</span> ({topEndpoints[0]?.count} detections)</span>
+                    <FontAwesomeIcon icon={faArrowTrendUp} className="h-4 w-4 text-emerald-400" />
+                  </>
+                ) : (
+                  <span>No endpoint detections recorded</span>
+                )}
+              </div>
+              <div className="leading-none text-[var(--text-muted)] text-xs">
+                Showing top {Math.min(15, topEndpoints.length)} detected endpoints
+              </div>
+            </div>
+          </div>
         </ChartCard>
 
         {/* Agent version distribution */}
@@ -125,9 +196,9 @@ export default function EndpointsPage() {
           <ResponsiveContainer width="100%" height={240}>
             <PieChart>
               <Pie data={agentVersionDist} cx="50%" cy="50%" innerRadius={60} outerRadius={90}
-                dataKey="value" paddingAngle={3}>
+                dataKey="value" paddingAngle={3} stroke="none">
                 {agentVersionDist.map((e, i) => (
-                  <Cell key={i} fill={e.fill ?? COLORS[i % COLORS.length]} />
+                  <Cell key={i} fill={e.fill ?? COLORS[i % COLORS.length]} stroke="none" />
                 ))}
               </Pie>
               <Tooltip {...TooltipStyle} />
@@ -146,7 +217,7 @@ export default function EndpointsPage() {
 
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h3 className="text-sm font-semibold text-[var(--text-primary)]">Endpoint Coverage</h3>
+              <h3 className="text-lg font-heading tracking-wider text-[var(--text-primary)]">Endpoint Coverage</h3>
               <p className="text-[11px] text-[var(--text-muted)] mt-0.5">
                 {hasAssets
                   ? 'Asset reconciliation (ITAssets vs S1AgentData)'
@@ -158,8 +229,8 @@ export default function EndpointsPage() {
               coveragePct >= 80 ? 'bg-emerald-500/15' : coveragePct >= 50 ? 'bg-amber-500/15' : 'bg-red-500/15'
             )}>
               {coveragePct >= 80
-                ? <Shield className="w-5 h-5 text-emerald-400" />
-                : <ShieldAlert className="w-5 h-5 text-red-400" />
+                ? <FontAwesomeIcon icon={faShieldHalved} className="w-5 h-5 text-emerald-400" />
+                : <FontAwesomeIcon icon={faShieldVirus} className="w-5 h-5 text-red-400" />
               }
             </div>
           </div>
@@ -215,8 +286,8 @@ export default function EndpointsPage() {
                       )}
                     >
                       {copied
-                        ? <><CheckCircle2 className="w-3 h-3" /> Copied!</>
-                        : <><Copy className="w-3 h-3" /> Copy List</>
+                        ? <><FontAwesomeIcon icon={faCircleCheck} className="w-3 h-3 mr-1" /> Copied!</>
+                        : <><FontAwesomeIcon icon={faCopy} className="w-3 h-3 mr-1" /> Copy List</>
                       }
                     </Button>
                   </div>
@@ -234,7 +305,7 @@ export default function EndpointsPage() {
 
               {missingEDR.length === 0 && (
                 <div className="flex items-center gap-2 text-emerald-400 text-sm">
-                  <Check className="w-4 h-4" />
+                  <FontAwesomeIcon icon={faCheck} className="w-4 h-4" />
                   All assets have EDR coverage
                 </div>
               )}

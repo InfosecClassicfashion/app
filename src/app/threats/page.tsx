@@ -177,7 +177,7 @@ export default function ThreatsPage() {
     <div className="p-6 space-y-6 page-enter">
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-xl font-bold text-[var(--text-primary)]">Threat Analysis</h1>
+          <h1 className="text-3xl font-heading tracking-wider text-[var(--text-primary)]">Threat Analysis</h1>
           <p className="text-sm text-[var(--text-muted)] mt-0.5">
             {mode === 'weekly'
               ? 'Recurring threats detected across multiple weeks — highlights persistent threats'

@@ -4,7 +4,12 @@ import * as React from "react"
 import { Select as SelectPrimitive } from "@base-ui/react/select"
 
 import { cn } from "@/lib/utils"
-import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import {
+  faChevronDown,
+  faChevronUp,
+  faCheck,
+} from "@fortawesome/free-solid-svg-icons"
 
 const Select = SelectPrimitive.Root
 
@@ -49,7 +54,7 @@ function SelectTrigger({
       {children}
       <SelectPrimitive.Icon
         render={
-          <ChevronDownIcon className="pointer-events-none size-4 text-muted-foreground" />
+          <FontAwesomeIcon icon={faChevronDown} className="pointer-events-none text-muted-foreground w-3 h-3" />
         }
       />
     </SelectPrimitive.Trigger>
@@ -130,7 +135,7 @@ function SelectItem({
           <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center" />
         }
       >
-        <CheckIcon className="pointer-events-none" />
+        <FontAwesomeIcon icon={faCheck} className="pointer-events-none w-3 h-3" />
       </SelectPrimitive.ItemIndicator>
     </SelectPrimitive.Item>
   )
@@ -162,8 +167,7 @@ function SelectScrollUpButton({
       )}
       {...props}
     >
-      <ChevronUpIcon
-      />
+      <FontAwesomeIcon icon={faChevronUp} className="w-3 h-3" />
     </SelectPrimitive.ScrollUpArrow>
   )
 }
@@ -181,8 +185,7 @@ function SelectScrollDownButton({
       )}
       {...props}
     >
-      <ChevronDownIcon
-      />
+      <FontAwesomeIcon icon={faChevronDown} className="w-3 h-3" />
     </SelectPrimitive.ScrollDownArrow>
   )
 }

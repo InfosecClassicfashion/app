@@ -1,7 +1,12 @@
 'use client';
 
 import React from 'react';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faArrowTrendUp,
+  faArrowTrendDown,
+  faMinus,
+} from '@fortawesome/free-solid-svg-icons';
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
 import type { KPIMetric } from '@/types';
 import { cn } from '@/lib/utils';
@@ -15,10 +20,10 @@ interface KpiCardProps {
 export function KpiCard({ metric, sparkData, className }: KpiCardProps) {
   const { label, value, deltaPercent, deltaDirection, color = '#8B5CF6' } = metric;
 
-  const DeltaIcon =
-    deltaDirection === 'up' ? TrendingUp :
-    deltaDirection === 'down' ? TrendingDown :
-    Minus;
+  const deltaIcon =
+    deltaDirection === 'up' ? faArrowTrendUp :
+    deltaDirection === 'down' ? faArrowTrendDown :
+    faMinus;
 
   const deltaColor =
     deltaDirection === 'up'
@@ -56,7 +61,7 @@ export function KpiCard({ metric, sparkData, className }: KpiCardProps) {
         </p>
         {deltaPercent !== undefined && (
           <div className={cn('flex items-center gap-1 text-xs font-medium', deltaColor)}>
-            <DeltaIcon className="w-3 h-3" />
+            <FontAwesomeIcon icon={deltaIcon} className="w-3 h-3" />
             <span>{Math.abs(deltaPercent)}%</span>
           </div>
         )}

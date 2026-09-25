@@ -63,25 +63,34 @@ function computeKPIs(current: EDRRow[], previous: EDRRow[]): KPIMetric[] {
   const resolvedPct = total > 0 ? Math.round((resolved / total) * 100) : 0;
   const prevResolvedPct = prevTotal > 0 ? Math.round((prevResolved / prevTotal) * 100) : 0;
 
-  const malicious = current.filter((r) =>
-    r.Classification.toLowerCase().includes('malicious') ||
-    r.AnalystVerdict.toLowerCase().includes('true_positive') ||
-    r.AnalystVerdict.toLowerCase().includes('malicious')
-  ).length;
-  const prevMalicious = previous.filter((r) =>
-    r.Classification.toLowerCase().includes('malicious') ||
-    r.AnalystVerdict.toLowerCase().includes('true_positive') ||
-    r.AnalystVerdict.toLowerCase().includes('malicious')
-  ).length;
+  const isMalicious = (r: EDRRow) => {
+    const cls = r.Classification.toLowerCase();
+    const verd = r.AnalystVerdict.toLowerCase();
+    const conf = r.ConfidenceLevel.toLowerCase();
+    return (
+      cls.includes('malicious') ||
+      verd.includes('true_positive') ||
+      verd.includes('malicious') ||
+      conf.includes('malicious')
+    );
+  };
 
-  const suspicious = current.filter((r) =>
-    r.Classification.toLowerCase().includes('suspicious') ||
-    r.ConfidenceLevel.toLowerCase().includes('suspicious')
-  ).length;
-  const prevSuspicious = previous.filter((r) =>
-    r.Classification.toLowerCase().includes('suspicious') ||
-    r.ConfidenceLevel.toLowerCase().includes('suspicious')
-  ).length;
+  const isSuspicious = (r: EDRRow) => {
+    const cls = r.Classification.toLowerCase();
+    const verd = r.AnalystVerdict.toLowerCase();
+    const conf = r.ConfidenceLevel.toLowerCase();
+    return (
+      cls.includes('suspicious') ||
+      verd.includes('suspicious') ||
+      conf.includes('suspicious')
+    );
+  };
+
+  const malicious = current.filter(isMalicious).length;
+  const prevMalicious = previous.filter(isMalicious).length;
+
+  const suspicious = current.filter(isSuspicious).length;
+  const prevSuspicious = previous.filter(isSuspicious).length;
 
   // Top risk site
   const siteCounts = countBy(current, (r) => r.Site);

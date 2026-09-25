@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 const TooltipStyle = {
   contentStyle: { background: '#1E2638', border: '1px solid rgba(99,110,130,0.25)', borderRadius: 8, fontSize: 12 },
   labelStyle: { color: '#E2E8F0' },
+  cursor: { fill: 'rgba(255, 255, 255, 0.05)' },
 };
 
 // ── Funnel chart: horizontally-centered bars, shrinking per stage ──
@@ -147,7 +148,7 @@ export default function ResolutionPage() {
   return (
     <div className="p-6 space-y-6 page-enter">
       <div>
-        <h1 className="text-xl font-bold text-[var(--text-primary)]">Incident Resolution Status</h1>
+        <h1 className="text-3xl font-heading tracking-wider text-[var(--text-primary)]">Incident Resolution Status</h1>
         <p className="text-sm text-[var(--text-muted)] mt-0.5">Status breakdown, lifecycle funnel, and resolution trend across months</p>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -179,8 +180,8 @@ export default function ResolutionPage() {
         >
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
-              <Pie data={statusCounts} cx="50%" cy="50%" innerRadius={65} outerRadius={95} dataKey="value" paddingAngle={3}>
-                {statusCounts.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
+              <Pie data={statusCounts} cx="50%" cy="50%" innerRadius={65} outerRadius={95} dataKey="value" paddingAngle={3} stroke="none">
+                {statusCounts.map((entry, i) => <Cell key={i} fill={entry.fill} stroke="none" />)}
               </Pie>
               <Tooltip {...TooltipStyle} />
               <Legend iconType="circle" iconSize={8} formatter={(v) => <span className="text-[11px] text-[var(--text-secondary)]">{v}</span>} />

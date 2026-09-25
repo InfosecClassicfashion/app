@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Download, Code2 } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faDownload, faCode } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -88,7 +89,7 @@ export function MermaidDiagram({ definition, id, className }: MermaidDiagramProp
             onClick={handleExportSvg}
             className="h-7 text-xs gap-1.5 border-white/10 bg-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]"
           >
-            <Code2 className="w-3 h-3" />
+            <FontAwesomeIcon icon={faCode} className="w-3 h-3" />
             SVG
           </Button>
           <Button
@@ -97,7 +98,7 @@ export function MermaidDiagram({ definition, id, className }: MermaidDiagramProp
             onClick={handleExportPng}
             className="h-7 text-xs gap-1.5 border-white/10 bg-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]"
           >
-            <Download className="w-3 h-3" />
+            <FontAwesomeIcon icon={faDownload} className="w-3 h-3" />
             PNG
           </Button>
         </div>

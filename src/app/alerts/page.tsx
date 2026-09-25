@@ -11,7 +11,8 @@ import { useDashboard } from '@/contexts/DashboardContext';
 import { ChartCard } from '@/components/ui/ChartCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowTrendUp, faArrowTrendDown, faMinus } from '@fortawesome/free-solid-svg-icons';
 import { cn } from '@/lib/utils';
 import { format, parseISO, isValid } from 'date-fns';
 
@@ -19,6 +20,7 @@ const COLORS = ['#8B5CF6','#10B981','#06B6D4','#F59E0B','#EF4444','#F43F5E','#3B
 const TooltipStyle = {
   contentStyle: { background: '#1E2638', border: '1px solid rgba(99,110,130,0.25)', borderRadius: 8, fontSize: 12 },
   labelStyle: { color: '#E2E8F0' },
+  cursor: { fill: 'rgba(255, 255, 255, 0.05)' },
 };
 
 type MonthCount = { month: string; label: string; count: number };
@@ -130,7 +132,7 @@ export default function AlertsPage() {
         <TableBody>
           {alertTrend.map((row) => {
             const dir = row.delta > 0 ? 'up' : row.delta < 0 ? 'down' : 'neutral';
-            const DeltaIcon = dir === 'up' ? TrendingUp : dir === 'down' ? TrendingDown : Minus;
+            const deltaIcon = dir === 'up' ? faArrowTrendUp : dir === 'down' ? faArrowTrendDown : faMinus;
             return (
               <TableRow key={row.classification} className="border-white/[0.04] data-row-hover">
                 <TableCell className="text-xs">{row.classification}</TableCell>
@@ -141,7 +143,7 @@ export default function AlertsPage() {
                     'flex items-center justify-end gap-1',
                     dir === 'up' ? 'text-red-400' : dir === 'down' ? 'text-emerald-400' : 'text-slate-400'
                   )}>
-                    <DeltaIcon className="w-3 h-3" />
+                    <FontAwesomeIcon icon={deltaIcon} className="w-3 h-3" />
                     {row.delta > 0 ? '+' : ''}{row.delta}
                     <span className="text-[var(--text-dim)] text-[10px]">({row.deltaPercent}%)</span>
                   </span>
@@ -236,7 +238,7 @@ export default function AlertsPage() {
   return (
     <div className="p-6 space-y-6 page-enter">
       <div>
-        <h1 className="text-xl font-bold text-[var(--text-primary)]">Alerts</h1>
+        <h1 className="text-3xl font-heading tracking-wider text-[var(--text-primary)]">Alerts</h1>
         <p className="text-sm text-[var(--text-muted)] mt-0.5">
           Alert type distribution, month-over-month trends, and top detections
         </p>
