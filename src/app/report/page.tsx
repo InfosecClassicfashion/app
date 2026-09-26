@@ -176,7 +176,7 @@ export default function ReportPage() {
               }),
               new Paragraph({
                 children: [
-                  new TextRun({ text: `Generated: ${new Date().toLocaleDateString()} | Target Account: Acme Corp`, italics: true, color: '64748B' }),
+                  new TextRun({ text: `Generated: ${new Date().toLocaleDateString()} | Target Account: Classic Fashion Apparel`, italics: true, color: '64748B' }),
                 ],
               }),
               new Paragraph({ text: '' }),
