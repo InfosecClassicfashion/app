@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import {
   PieChart, Pie, Cell, Legend,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -10,6 +11,9 @@ import { KpiCard } from '@/components/ui/KpiCard';
 import { ChartCard } from '@/components/ui/ChartCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBookOpen } from '@fortawesome/free-solid-svg-icons';
 import {
   ChartContainer,
   ChartTooltip,
@@ -241,11 +245,23 @@ export default function OverviewPage() {
 
   return (
     <div className="p-6 space-y-6 page-enter">
-      <div>
-        <h1 className="text-3xl font-heading tracking-wider text-[var(--text-primary)]">Executive Summary</h1>
-        <p className="text-sm text-[var(--text-muted)] mt-0.5">
-          Reporting period: {months.find((m) => m.key === reportingMonth)?.label ?? reportingMonth} · {reportingRows.length.toLocaleString()} incidents
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-heading tracking-wider text-[var(--text-primary)]">Executive Summary</h1>
+          <p className="text-sm text-[var(--text-muted)] mt-0.5">
+            Reporting period: {months.find((m) => m.key === reportingMonth)?.label ?? reportingMonth} · {reportingRows.length.toLocaleString()} incidents
+          </p>
+        </div>
+        <Link href="/summary">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 text-xs border-[var(--accent-purple)]/30 text-[var(--accent-purple)] hover:bg-[var(--accent-purple)]/10"
+          >
+            <FontAwesomeIcon icon={faBookOpen} className="w-3.5 h-3.5" />
+            Detailed Text Summary
+          </Button>
+        </Link>
       </div>
 
       {/* KPI grid */}

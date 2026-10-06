@@ -16,6 +16,7 @@ import {
   faCircleCheck,
   faBolt,
   faFileLines,
+  faBookOpen,
   faChevronLeft,
   faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
@@ -49,6 +50,7 @@ const INGESTION_ITEMS: NavItem[] = [
 
 const ANALYTICS_ITEMS: NavItem[] = [
   { href: '/overview',   label: 'Executive Summary', icon: faGaugeHigh },
+  { href: '/summary',    label: 'Detailed Summary',  icon: faBookOpen },
   { href: '/alerts',     label: 'Alerts',            icon: faBell },
   { href: '/threats',    label: 'Threat Analysis',   icon: faCrosshairs },
   { href: '/endpoints',  label: 'Endpoint Summary',  icon: faDesktop },

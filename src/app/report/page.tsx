@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faFileLines,
@@ -10,6 +11,7 @@ import {
   faCircleExclamation,
   faEye,
   faFilePowerpoint,
+  faBookOpen,
 } from '@fortawesome/free-solid-svg-icons';
 import { useDashboard } from '@/contexts/DashboardContext';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -412,6 +414,39 @@ export default function ReportPage() {
         <p className="text-[11px] text-[var(--text-dim)] mt-3">
           Vector rendering with @react-pdf/renderer and executive slide decks with pptxgenjs produce high-resolution, editable deliverables in 1–2 seconds.
         </p>
+      </div>
+
+      {/* Detailed Text Summary Card */}
+      <div className="glass-card p-6 max-w-2xl border border-white/[0.08]">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-600/25">
+            <FontAwesomeIcon icon={faBookOpen} className="w-6 h-6 text-white" />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-heading tracking-wider text-[var(--text-primary)]">
+                Executive Text Summary
+              </h2>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/25">
+                Markdown / Plain Text
+              </span>
+            </div>
+            <p className="text-sm text-[var(--text-muted)] mt-1">
+              Read, copy, or export an extensive in-depth narrative synthesis of the entire dashboard in plain text and Markdown.
+            </p>
+            <div className="mt-4 flex items-center gap-3">
+              <Link href="/summary">
+                <Button
+                  size="sm"
+                  className="gap-2 bg-[var(--accent-purple)] hover:bg-[var(--accent-purple)]/80 text-white border-0 shadow-md shadow-purple-600/25"
+                >
+                  <FontAwesomeIcon icon={faBookOpen} className="w-3.5 h-3.5" />
+                  View Detailed Summary Page
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
