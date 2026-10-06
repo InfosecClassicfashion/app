@@ -2,66 +2,88 @@ import type PptxGenJS from 'pptxgenjs';
 import type { AnalyticsResult, MonthSummary } from '@/types';
 
 // ============================================================
-// Modern Dashboard Cyber Palette & Typography Tokens
-// Matches the dark-mode cybersecurity theme of the dashboard
+// Modern Executive Palette & JetBrains Mono Typography Tokens
+// Slide 1: High-Impact Dark Command Center Cover
+// Slides 2–9: Modern Crisp Light-Mode Corporate Theme
 // ============================================================
 const FONT = 'JetBrains Mono';
 
-const C = {
-  // Core Surfaces (Deep Navy / Charcoal Cyber)
-  bgBase: '0D1117',
-  bgCard: '161B22',
-  bgCardAlt: '11161E',
-  bgElevated: '1E2638',
-  bgHeader: '1A2234',
-
-  // Borders
-  border: '263040',
-  borderLight: '334155',
-  borderAccent: '8B5CF6',
-
-  // Brand Neon Accents (From Dashboard Recharts / Tailwind)
-  purple: '8B5CF6',       // Chart 1 / Primary
-  cyan: '06B6D4',         // Chart 3 / Accent Sky
-  emerald: '10B981',      // Chart 2 / Safe / Resolved
-  amber: 'F59E0B',        // Chart 4 / Suspicious
-  red: 'EF4444',          // Chart 5 / Malicious / Urgent
-  rose: 'F43F5E',         // Critical
-  blue: '3B82F6',         // Royal Blue
-  pink: 'EC4899',         // Magenta
-  teal: '14B8A6',         // Mint Teal
-
-  // Typography
-  textPrimary: 'E2E8F0',  // High contrast white-slate
-  textSecondary: '94A3B8',// Muted slate
-  textMuted: '64748B',    // Darker slate
-  textDim: '475569',
+// Slide 1 (Cover) Dark Palette
+const DARK = {
+  bgBase: '0A1128',
+  bgCard: '111C38',
+  border: '1E2F5D',
+  purple: '8B5CF6',
+  cyan: '38BDF8',
+  emerald: '34D399',
+  red: 'F87171',
   textWhite: 'FFFFFF',
-  textCyan: '38BDF8',
+  textSecondary: '94A3B8',
+  textMuted: '64748B',
 };
 
-// Vibrant modern dashboard chart colors
-const DASHBOARD_CHART_COLORS = [
-  '8B5CF6', // Vivid Purple
-  '06B6D4', // Bright Cyan
-  '10B981', // Fresh Emerald
-  'F59E0B', // Warm Amber
-  'F43F5E', // Coral Rose
-  '3B82F6', // Royal Blue
-  'EC4899', // Hot Pink
-  '14B8A6', // Mint Teal
+// Slides 2–9 Modern Crisp Light Palette
+const LIGHT = {
+  bgPage: 'F8FAFC',        // Slate 50 clean surface
+  bgCard: 'FFFFFF',        // Pure white card
+  bgCardAlt: 'F1F5F9',     // Slate 100 alternating container fill
+  bgHeader: '1E293B',      // Dark slate navy table header
+  border: 'E2E8F0',        // Slate 200 border
+  borderMedium: 'CBD5E1',  // Slate 300
+  gridLine: 'E2E8F0',      // Light clean gridline for charts
+
+  // High-contrast vibrant brand accents (tuned for white backgrounds)
+  purple: '7C3AED',        // Deep Vivid Purple
+  cyan: '0284C7',          // Steel Sky / Cyan
+  emerald: '059669',       // Fresh Emerald
+  amber: 'D97706',         // Warm Amber
+  red: 'DC2626',           // Crimson Red
+  rose: 'E11D48',          // Vivid Rose
+  blue: '2563EB',          // Royal Blue
+  pink: 'DB2777',          // Hot Pink
+  teal: '0D9488',          // Deep Teal
+
+  // Typography for light mode
+  textPrimary: '0F172A',   // Slate 900 (High contrast)
+  textSecondary: '475569', // Slate 600
+  textMuted: '64748B',     // Slate 500
+  textLight: '94A3B8',     // Slate 400
+  textWhite: 'FFFFFF',
+
+  // Alert & Chip fills
+  chipRedBg: 'FEF2F2',
+  chipRedBorder: 'FECACA',
+  chipRedText: 'B91C1C',
+  chipAmberBg: 'FFFBEB',
+  chipAmberBorder: 'FDE68A',
+  chipAmberText: '92400E',
+  chipGreenBg: 'ECFDF5',
+  chipGreenBorder: 'A7F3D0',
+  chipGreenText: '047857',
+};
+
+// High-contrast categorical palette for light-mode charts
+const LIGHT_CHART_COLORS = [
+  '7C3AED', // Deep Purple
+  '0284C7', // Vivid Cyan
+  '059669', // Fresh Emerald
+  'D97706', // Warm Amber
+  'DC2626', // Crimson Red
+  '2563EB', // Royal Blue
+  'DB2777', // Hot Pink
+  '0D9488', // Deep Teal
 ];
 
-// Semantic verdict colors from dashboard overview
-const VERDICT_CHART_COLORS: Record<string, string> = {
-  'true positive': 'EF4444',
-  'true_positive': 'EF4444',
-  malicious: 'EF4444',
-  'false positive': '10B981',
-  'false_positive': '10B981',
-  benign: '10B981',
-  suspicious: 'F59E0B',
-  undefined: '8B5CF6',
+// Semantic verdict colors tuned for light backgrounds
+const VERDICT_LIGHT_COLORS: Record<string, string> = {
+  'true positive': 'DC2626',
+  'true_positive': 'DC2626',
+  malicious: 'DC2626',
+  'false positive': '059669',
+  'false_positive': '059669',
+  benign: '059669',
+  suspicious: 'D97706',
+  undefined: '7C3AED',
   unknown: '64748B',
 };
 
@@ -88,7 +110,7 @@ function makeCell(
     text: String(text),
     options: {
       fontFace: FONT,
-      color: C.textPrimary,
+      color: LIGHT.textPrimary,
       ...options,
     },
   };
@@ -96,7 +118,9 @@ function makeCell(
 
 /**
  * Modern PowerPoint Presentation Generator for EDR Executive Reports
- * Styled after the dashboard with JetBrains Mono typography and vibrant cyber charting.
+ * Generates an executive 9-slide deck:
+ * - Slide 1: High-impact dark cover slide
+ * - Slides 2–9: Crisp modern light-mode slides with JetBrains Mono typography & light-mode styled charts
  */
 export async function generateReportPowerPoint({
   analytics,
@@ -160,22 +184,22 @@ export async function generateReportPowerPoint({
       ? `${Math.round((reconciliation.matched / reconciliation.totalAssets) * 100)}%`
       : '100%';
 
-  // Helper for adding consistent Modern Cyber Slide Header
-  const addSlideHeader = (
+  // Helper for adding consistent Modern Light Slide Header
+  const addLightSlideHeader = (
     slide: PptxGenJS.Slide,
     sectionCategory: string,
     title: string,
     subtitle?: string
   ) => {
-    slide.background = { color: C.bgBase };
+    slide.background = { color: LIGHT.bgPage };
 
-    // Left neon accent pillar
+    // Left vivid accent pillar
     slide.addShape(pres.ShapeType.roundRect, {
       x: 0.5,
       y: 0.32,
       w: 0.08,
       h: 0.52,
-      fill: { color: C.purple },
+      fill: { color: LIGHT.purple },
       rectRadius: 0.04,
     });
 
@@ -187,11 +211,11 @@ export async function generateReportPowerPoint({
       h: 0.2,
       fontSize: 8,
       bold: true,
-      color: C.cyan,
+      color: LIGHT.cyan,
       fontFace: FONT,
     });
 
-    // Slide Main Title
+    // Slide Main Title (Dark High-Contrast)
     slide.addText(title, {
       x: 0.68,
       y: 0.48,
@@ -199,7 +223,7 @@ export async function generateReportPowerPoint({
       h: 0.36,
       fontSize: 16,
       bold: true,
-      color: C.textWhite,
+      color: LIGHT.textPrimary,
       fontFace: FONT,
     });
 
@@ -210,39 +234,39 @@ export async function generateReportPowerPoint({
         w: 8.8,
         h: 0.22,
         fontSize: 8.5,
-        color: C.textSecondary,
+        color: LIGHT.textSecondary,
         fontFace: FONT,
       });
     }
 
-    // Top divider line
+    // Top subtle divider line
     slide.addShape(pres.ShapeType.rect, {
       x: 0.5,
       y: subtitle ? 1.08 : 0.95,
       w: 9.0,
       h: 0.01,
-      fill: { color: C.border },
+      fill: { color: LIGHT.border },
     });
   };
 
-  // Helper for adding consistent Modern Cyber Slide Footer
-  const addSlideFooter = (slide: PptxGenJS.Slide, pageNum: number) => {
-    // Bottom divider line
+  // Helper for adding consistent Modern Light Slide Footer
+  const addLightSlideFooter = (slide: PptxGenJS.Slide, pageNum: number) => {
+    // Bottom subtle divider line
     slide.addShape(pres.ShapeType.rect, {
       x: 0.5,
       y: 5.18,
       w: 9.0,
       h: 0.01,
-      fill: { color: C.border },
+      fill: { color: LIGHT.border },
     });
 
-    slide.addText('[CLASSIFIED // SOC OPERATIONS ONLY]', {
+    slide.addText('[CONFIDENTIAL // INTERNAL SOC USE ONLY]', {
       x: 0.5,
       y: 5.25,
       w: 3.5,
       h: 0.25,
       fontSize: 7,
-      color: C.textMuted,
+      color: LIGHT.textMuted,
       fontFace: FONT,
     });
 
@@ -252,7 +276,7 @@ export async function generateReportPowerPoint({
       w: 4.0,
       h: 0.25,
       fontSize: 7,
-      color: C.textMuted,
+      color: LIGHT.textMuted,
       align: 'center',
       fontFace: FONT,
     });
@@ -264,18 +288,18 @@ export async function generateReportPowerPoint({
       h: 0.25,
       fontSize: 7.5,
       bold: true,
-      color: C.purple,
+      color: LIGHT.purple,
       align: 'right',
       fontFace: FONT,
     });
   };
 
   // ============================================================
-  // SLIDE 1: EXECUTIVE COVER SLIDE (CYBER DARK COMMAND CENTER)
+  // SLIDE 1: EXECUTIVE COVER SLIDE (DARK COMMAND CENTER THEME)
   // ============================================================
   {
     const slide = pres.addSlide();
-    slide.background = { color: C.bgBase };
+    slide.background = { color: DARK.bgBase };
 
     // Dual Glowing Neon Accent Lines
     slide.addShape(pres.ShapeType.roundRect, {
@@ -283,7 +307,7 @@ export async function generateReportPowerPoint({
       y: 0.55,
       w: 0.8,
       h: 0.05,
-      fill: { color: C.purple },
+      fill: { color: DARK.purple },
       rectRadius: 0.03,
     });
     slide.addShape(pres.ShapeType.roundRect, {
@@ -291,7 +315,7 @@ export async function generateReportPowerPoint({
       y: 0.55,
       w: 0.4,
       h: 0.05,
-      fill: { color: C.cyan },
+      fill: { color: DARK.cyan },
       rectRadius: 0.03,
     });
 
@@ -303,10 +327,10 @@ export async function generateReportPowerPoint({
       h: 0.28,
       fontSize: 7.5,
       bold: true,
-      color: C.cyan,
+      color: DARK.cyan,
       fontFace: FONT,
-      fill: { color: C.bgCard },
-      line: { color: C.border, width: 1 },
+      fill: { color: DARK.bgCard },
+      line: { color: DARK.border, width: 1 },
       rectRadius: 0.06,
       align: 'center',
       valign: 'middle',
@@ -320,7 +344,7 @@ export async function generateReportPowerPoint({
       h: 1.25,
       fontSize: 32,
       bold: true,
-      color: C.textWhite,
+      color: DARK.textWhite,
       fontFace: FONT,
       lineSpacing: 38,
     });
@@ -334,7 +358,7 @@ export async function generateReportPowerPoint({
         w: 7.5,
         h: 0.45,
         fontSize: 10.5,
-        color: C.textSecondary,
+        color: DARK.textSecondary,
         fontFace: FONT,
       }
     );
@@ -346,21 +370,21 @@ export async function generateReportPowerPoint({
       y: metaY,
       w: 8.6,
       h: 0.01,
-      fill: { color: C.border },
+      fill: { color: DARK.border },
     });
 
     const metaItems = [
-      { label: 'REPORTING PERIOD', value: reportLabel, color: C.cyan },
-      { label: 'TARGET ACCOUNT', value: accountName, color: C.textWhite },
-      { label: 'EDR PLATFORM', value: 'SentinelOne Singularity', color: C.purple },
-      { label: 'ANALYZED EVENTS', value: `${detected.toLocaleString()} Detections`, color: C.emerald },
+      { label: 'REPORTING PERIOD', value: reportLabel, color: DARK.cyan },
+      { label: 'TARGET ACCOUNT', value: accountName, color: DARK.textWhite },
+      { label: 'EDR PLATFORM', value: 'SentinelOne Singularity', color: DARK.purple },
+      { label: 'ANALYZED EVENTS', value: `${detected.toLocaleString()} Detections`, color: DARK.emerald },
     ];
 
     metaItems.forEach((m, idx) => {
       const xPos = 0.7 + idx * 2.15;
       slide.addText(
         [
-          { text: `[${m.label}]\n`, options: { fontSize: 6.5, color: C.textMuted, bold: true } },
+          { text: `[${m.label}]\n`, options: { fontSize: 6.5, color: DARK.textMuted, bold: true } },
           { text: m.value, options: { fontSize: 9.5, color: m.color, bold: true } },
         ],
         { x: xPos, y: metaY + 0.1, w: 2.05, h: 0.5, fontFace: FONT }
@@ -374,14 +398,14 @@ export async function generateReportPowerPoint({
       y: kpiY,
       w: 8.6,
       h: 0.01,
-      fill: { color: C.border },
+      fill: { color: DARK.border },
     });
 
     const coverKpis = [
-      { label: 'TOTAL INCIDENTS', value: detected.toLocaleString(), color: C.purple },
-      { label: 'RESOLVED INCIDENTS', value: resolved.toLocaleString(), color: C.emerald },
-      { label: 'MALICIOUS DETECTIONS', value: String(kpis[2]?.value ?? '0'), color: C.red },
-      { label: 'EDR COVERAGE RATE', value: coveragePct, color: C.cyan },
+      { label: 'TOTAL INCIDENTS', value: detected.toLocaleString(), color: DARK.purple },
+      { label: 'RESOLVED INCIDENTS', value: resolved.toLocaleString(), color: DARK.emerald },
+      { label: 'MALICIOUS DETECTIONS', value: String(kpis[2]?.value ?? '0'), color: DARK.red },
+      { label: 'EDR COVERAGE RATE', value: coveragePct, color: DARK.cyan },
     ];
 
     coverKpis.forEach((k, idx) => {
@@ -392,8 +416,8 @@ export async function generateReportPowerPoint({
         y: kpiY + 0.15,
         w: 2.08,
         h: 0.85,
-        fill: { color: C.bgCard },
-        line: { color: C.border, width: 1 },
+        fill: { color: DARK.bgCard },
+        line: { color: DARK.border, width: 1 },
         rectRadius: 0.06,
       });
 
@@ -408,7 +432,7 @@ export async function generateReportPowerPoint({
 
       slide.addText(
         [
-          { text: `${k.label}\n`, options: { fontSize: 6.5, color: C.textSecondary, bold: true } },
+          { text: `${k.label}\n`, options: { fontSize: 6.5, color: DARK.textSecondary, bold: true } },
           { text: k.value, options: { fontSize: 16, color: k.color, bold: true } },
         ],
         { x: kX + 0.12, y: kpiY + 0.22, w: 1.85, h: 0.7, fontFace: FONT }
@@ -422,17 +446,17 @@ export async function generateReportPowerPoint({
       w: 8.6,
       h: 0.25,
       fontSize: 7,
-      color: C.textMuted,
+      color: DARK.textMuted,
       fontFace: FONT,
     });
   }
 
   // ============================================================
-  // SLIDE 2: TABLE OF CONTENTS & EXECUTIVE AGENDA
+  // SLIDE 2: TABLE OF CONTENTS (LIGHT MODE)
   // ============================================================
   {
     const slide = pres.addSlide();
-    addSlideHeader(
+    addLightSlideHeader(
       slide,
       '01. CONTENTS',
       'Table of Contents & Executive Agenda',
@@ -456,25 +480,25 @@ export async function generateReportPowerPoint({
     agendaItems.forEach((item, idx) => {
       const yPos = startY + idx * (itemH + 0.05);
 
-      // Card container
+      // White card container
       slide.addShape(pres.ShapeType.roundRect, {
         x: 0.5,
         y: yPos,
         w: 5.6,
         h: itemH,
-        fill: { color: C.bgCard },
-        line: { color: C.border, width: 1 },
+        fill: { color: LIGHT.bgCard },
+        line: { color: LIGHT.border, width: 1 },
         rectRadius: 0.05,
       });
 
-      // Number badge
+      // Number badge pill
       slide.addShape(pres.ShapeType.roundRect, {
         x: 0.6,
         y: yPos + 0.1,
         w: 0.38,
         h: 0.3,
-        fill: { color: C.bgElevated },
-        line: { color: C.border, width: 1 },
+        fill: { color: LIGHT.bgCardAlt },
+        line: { color: LIGHT.border, width: 1 },
         rectRadius: 0.04,
       });
       slide.addText(item.num, {
@@ -484,7 +508,7 @@ export async function generateReportPowerPoint({
         h: 0.3,
         fontSize: 8.5,
         bold: true,
-        color: C.purple,
+        color: LIGHT.purple,
         align: 'center',
         valign: 'middle',
         fontFace: FONT,
@@ -493,8 +517,8 @@ export async function generateReportPowerPoint({
       // Text Title & Desc
       slide.addText(
         [
-          { text: `${item.title}  `, options: { fontSize: 9, bold: true, color: C.textWhite } },
-          { text: `— ${item.desc}`, options: { fontSize: 7.5, color: C.textSecondary } },
+          { text: `${item.title}  `, options: { fontSize: 9, bold: true, color: LIGHT.textPrimary } },
+          { text: `— ${item.desc}`, options: { fontSize: 7.5, color: LIGHT.textSecondary } },
         ],
         { x: 1.08, y: yPos + 0.06, w: 4.8, h: itemH - 0.1, fontFace: FONT, valign: 'middle' }
       );
@@ -507,8 +531,8 @@ export async function generateReportPowerPoint({
       y: 1.25,
       w: 3.2,
       h: 1.7,
-      fill: { color: C.bgCard },
-      line: { color: C.border, width: 1 },
+      fill: { color: LIGHT.bgCard },
+      line: { color: LIGHT.border, width: 1 },
       rectRadius: 0.06,
     });
 
@@ -519,20 +543,20 @@ export async function generateReportPowerPoint({
       h: 0.25,
       fontSize: 9.5,
       bold: true,
-      color: C.cyan,
+      color: LIGHT.cyan,
       fontFace: FONT,
     });
 
     slide.addText(
       [
-        { text: '• REPORTING CYCLE: ', options: { bold: true, color: C.textPrimary } },
-        { text: `${reportLabel}\n`, options: { color: C.textSecondary } },
-        { text: '• EVENTS CAPTURED: ', options: { bold: true, color: C.textPrimary } },
-        { text: `${detected.toLocaleString()} detections\n`, options: { color: C.purple, bold: true } },
-        { text: '• ACTIVE HOSTS: ', options: { bold: true, color: C.textPrimary } },
-        { text: `${kpis[3]?.value ?? topEndpoints.length} monitored\n`, options: { color: C.textSecondary } },
-        { text: '• EDR MATCH RATE: ', options: { bold: true, color: C.textPrimary } },
-        { text: `${coveragePct} Protected\n`, options: { color: C.emerald, bold: true } },
+        { text: '• REPORTING CYCLE: ', options: { bold: true, color: LIGHT.textPrimary } },
+        { text: `${reportLabel}\n`, options: { color: LIGHT.textSecondary } },
+        { text: '• EVENTS CAPTURED: ', options: { bold: true, color: LIGHT.textPrimary } },
+        { text: `${detected.toLocaleString()} detections\n`, options: { color: LIGHT.purple, bold: true } },
+        { text: '• ACTIVE HOSTS: ', options: { bold: true, color: LIGHT.textPrimary } },
+        { text: `${kpis[3]?.value ?? topEndpoints.length} monitored\n`, options: { color: LIGHT.textSecondary } },
+        { text: '• EDR MATCH RATE: ', options: { bold: true, color: LIGHT.textPrimary } },
+        { text: `${coveragePct} Protected\n`, options: { color: LIGHT.emerald, bold: true } },
       ],
       { x: 6.5, y: 1.7, w: 2.8, h: 1.1, fontSize: 8, fontFace: FONT, lineSpacing: 16 }
     );
@@ -543,18 +567,18 @@ export async function generateReportPowerPoint({
       y: 3.1,
       w: 3.2,
       h: 1.95,
-      fill: { color: C.bgCard },
-      line: { color: C.border, width: 1 },
+      fill: { color: LIGHT.bgCard },
+      line: { color: LIGHT.border, width: 1 },
       rectRadius: 0.06,
     });
 
-    // Left neon purple accent stripe
+    // Left purple accent stripe
     slide.addShape(pres.ShapeType.rect, {
       x: 6.3,
       y: 3.1,
       w: 0.06,
       h: 1.95,
-      fill: { color: C.purple },
+      fill: { color: LIGHT.purple },
     });
 
     slide.addText('// COMPLIANCE PROTOCOL', {
@@ -564,7 +588,7 @@ export async function generateReportPowerPoint({
       h: 0.25,
       fontSize: 9.5,
       bold: true,
-      color: C.purple,
+      color: LIGHT.purple,
       fontFace: FONT,
     });
 
@@ -576,45 +600,45 @@ export async function generateReportPowerPoint({
         w: 2.75,
         h: 1.35,
         fontSize: 7.5,
-        color: C.textSecondary,
+        color: LIGHT.textSecondary,
         fontFace: FONT,
         lineSpacing: 13,
       }
     );
 
-    addSlideFooter(slide, 2);
+    addLightSlideFooter(slide, 2);
   }
 
   // ============================================================
-  // SLIDE 3: EXECUTIVE SUMMARY & THREAT LANDSCAPE
+  // SLIDE 3: EXECUTIVE SUMMARY & THREAT LANDSCAPE (LIGHT MODE)
   // ============================================================
   {
     const slide = pres.addSlide();
-    addSlideHeader(
+    addLightSlideHeader(
       slide,
       '02. EXECUTIVE SUMMARY',
       'Executive Summary & Threat Landscape',
       'High-level operational overview, classification distributions, and engine detection telemetry.'
     );
 
-    // 4 KPI Cards across top
+    // 4 KPI Cards across top (Pure White with Light Borders)
     const kpiCards = [
-      { label: String(kpis[0]?.label || 'Total Detections'), value: String(kpis[0]?.value || detected), prev: kpis[0]?.previous, color: C.purple },
-      { label: String(kpis[1]?.label || 'Resolved Incidents'), value: String(kpis[1]?.value || resolved), prev: kpis[1]?.previous, color: C.emerald },
-      { label: String(kpis[2]?.label || 'Malicious Detections'), value: String(kpis[2]?.value || '0'), prev: kpis[2]?.previous, color: C.red },
-      { label: String(kpis[3]?.label || 'Active Endpoints'), value: String(kpis[3]?.value || '0'), prev: kpis[3]?.previous, color: C.cyan },
+      { label: String(kpis[0]?.label || 'Total Detections'), value: String(kpis[0]?.value || detected), prev: kpis[0]?.previous, color: LIGHT.purple },
+      { label: String(kpis[1]?.label || 'Resolved Incidents'), value: String(kpis[1]?.value || resolved), prev: kpis[1]?.previous, color: LIGHT.emerald },
+      { label: String(kpis[2]?.label || 'Malicious Detections'), value: String(kpis[2]?.value || '0'), prev: kpis[2]?.previous, color: LIGHT.red },
+      { label: String(kpis[3]?.label || 'Active Endpoints'), value: String(kpis[3]?.value || '0'), prev: kpis[3]?.previous, color: LIGHT.cyan },
     ];
 
     kpiCards.forEach((k, idx) => {
       const cardX = 0.5 + idx * 2.28;
-      // Cyber Card
+      // White Card
       slide.addShape(pres.ShapeType.roundRect, {
         x: cardX,
         y: 1.15,
         w: 2.18,
         h: 0.88,
-        fill: { color: C.bgCard },
-        line: { color: C.border, width: 1 },
+        fill: { color: LIGHT.bgCard },
+        line: { color: LIGHT.border, width: 1 },
         rectRadius: 0.05,
       });
 
@@ -629,15 +653,15 @@ export async function generateReportPowerPoint({
 
       slide.addText(
         [
-          { text: `${k.label.toUpperCase()}\n`, options: { fontSize: 6.5, color: C.textSecondary, bold: true } },
-          { text: `${k.value}\n`, options: { fontSize: 16, color: k.color, bold: true } },
-          { text: k.prev ? `vs Prev: ${k.prev}` : 'Current Reporting Cycle', options: { fontSize: 6.5, color: C.textMuted } },
+          { text: `${k.label.toUpperCase()}\n`, options: { fontSize: 6.5, color: LIGHT.textMuted, bold: true } },
+          { text: `${k.value}\n`, options: { fontSize: 16, color: LIGHT.textPrimary, bold: true } },
+          { text: k.prev ? `vs Prev: ${k.prev}` : 'Current Reporting Cycle', options: { fontSize: 6.5, color: LIGHT.textSecondary } },
         ],
         { x: cardX + 0.1, y: 1.24, w: 1.98, h: 0.74, fontFace: FONT }
       );
     });
 
-    // Bottom Left: Alert Classification Modern Cyber Horizontal Bar Chart
+    // Bottom Left: Alert Classification Modern Light Horizontal Bar Chart
     const leftCardX = 0.5;
     const leftCardY = 2.15;
     const leftCardW = 4.7;
@@ -648,8 +672,8 @@ export async function generateReportPowerPoint({
       y: leftCardY,
       w: leftCardW,
       h: leftCardH,
-      fill: { color: C.bgCard },
-      line: { color: C.border, width: 1 },
+      fill: { color: LIGHT.bgCard },
+      line: { color: LIGHT.border, width: 1 },
       rectRadius: 0.06,
     });
 
@@ -660,7 +684,7 @@ export async function generateReportPowerPoint({
       h: 0.25,
       fontSize: 9.5,
       bold: true,
-      color: C.purple,
+      color: LIGHT.purple,
       fontFace: FONT,
     });
 
@@ -682,25 +706,25 @@ export async function generateReportPowerPoint({
           h: leftCardH - 0.45,
           barDir: 'bar',
           barGapWidthPct: 50,
-          chartColors: [C.purple],
+          chartColors: [LIGHT.purple],
           showValue: true,
           showLegend: false,
-          dataLabelColor: C.textPrimary,
+          dataLabelColor: LIGHT.textPrimary,
           dataLabelFontFace: FONT,
           dataLabelFontSize: 7.5,
           dataLabelFontBold: true,
-          catAxisLabelColor: C.textSecondary,
+          catAxisLabelColor: LIGHT.textSecondary,
           catAxisLabelFontFace: FONT,
           catAxisLabelFontSize: 7,
-          valAxisLabelColor: C.textMuted,
+          valAxisLabelColor: LIGHT.textMuted,
           valAxisLabelFontFace: FONT,
           valAxisLabelFontSize: 7,
-          valGridLine: { color: C.border, size: 0.75, style: 'dash' },
+          valGridLine: { color: LIGHT.gridLine, size: 0.75, style: 'dash' },
         }
       );
     }
 
-    // Bottom Right: Analyst Verdict Distribution + Top Detecting Engines
+    // Bottom Right: Analyst Verdict Distribution + Top Detecting Engines (Light Mode)
     const rightCardX = 5.35;
     const rightCardY = 2.15;
     const rightCardW = 4.15;
@@ -711,8 +735,8 @@ export async function generateReportPowerPoint({
       y: rightCardY,
       w: rightCardW,
       h: rightCardH,
-      fill: { color: C.bgCard },
-      line: { color: C.border, width: 1 },
+      fill: { color: LIGHT.bgCard },
+      line: { color: LIGHT.border, width: 1 },
       rectRadius: 0.06,
     });
 
@@ -723,11 +747,11 @@ export async function generateReportPowerPoint({
       h: 0.25,
       fontSize: 9.5,
       bold: true,
-      color: C.cyan,
+      color: LIGHT.cyan,
       fontFace: FONT,
     });
 
-    // 4 verdict cyber chips
+    // 4 verdict chips (Light Mode)
     const totalVerdictCount = analystVerdictDist.reduce((acc, v) => acc + v.value, 0) || 1;
     const verdictSlice = analystVerdictDist.slice(0, 4);
 
@@ -743,15 +767,15 @@ export async function generateReportPowerPoint({
         y: vY,
         w: 1.8,
         h: 0.48,
-        fill: { color: C.bgElevated },
-        line: { color: C.border, width: 1 },
+        fill: { color: LIGHT.bgCardAlt },
+        line: { color: LIGHT.border, width: 1 },
         rectRadius: 0.04,
       });
 
       // Semantic pip color
       const pipColor =
-        VERDICT_CHART_COLORS[v.name.toLowerCase().trim()] ||
-        (vi === 0 ? C.red : vi === 1 ? C.amber : vi === 2 ? C.emerald : C.purple);
+        VERDICT_LIGHT_COLORS[v.name.toLowerCase().trim()] ||
+        (vi === 0 ? LIGHT.red : vi === 1 ? LIGHT.amber : vi === 2 ? LIGHT.emerald : LIGHT.purple);
 
       slide.addShape(pres.ShapeType.rect, {
         x: vX,
@@ -763,15 +787,15 @@ export async function generateReportPowerPoint({
 
       slide.addText(
         [
-          { text: `${v.name.slice(0, 15)}\n`, options: { fontSize: 7, color: C.textSecondary, bold: true } },
+          { text: `${v.name.slice(0, 15)}\n`, options: { fontSize: 7, color: LIGHT.textSecondary, bold: true } },
           { text: `${v.value.toLocaleString()} `, options: { fontSize: 8.5, bold: true, color: pipColor } },
-          { text: `(${pct}%)`, options: { fontSize: 7, color: C.textMuted } },
+          { text: `(${pct}%)`, options: { fontSize: 7, color: LIGHT.textMuted } },
         ],
         { x: vX + 0.1, y: vY + 0.03, w: 1.65, h: 0.42, fontFace: FONT, valign: 'middle' }
       );
     });
 
-    // Detecting Engines Mini Table
+    // Detecting Engines Table (Light Mode)
     slide.addText('[TOP DETECTING ENGINES]', {
       x: rightCardX + 0.2,
       y: rightCardY + 1.62,
@@ -779,18 +803,18 @@ export async function generateReportPowerPoint({
       h: 0.2,
       fontSize: 7.5,
       bold: true,
-      color: C.textSecondary,
+      color: LIGHT.textSecondary,
       fontFace: FONT,
     });
 
     const engineRows: PptxGenJS.TableRow[] = [
       [
-        makeCell('ENGINE NAME', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7 }),
-        makeCell('DETECTIONS', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7, align: 'right' }),
+        makeCell('ENGINE NAME', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7 }),
+        makeCell('DETECTIONS', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7, align: 'right' }),
       ],
       ...topEngines.slice(0, 4).map((eng, ei) => [
-        makeCell(eng.name.length > 24 ? eng.name.slice(0, 24) + '…' : eng.name, { fill: { color: ei % 2 === 1 ? C.bgElevated : C.bgCard }, color: C.textPrimary, fontSize: 7 }),
-        makeCell(eng.value.toLocaleString(), { fill: { color: ei % 2 === 1 ? C.bgElevated : C.bgCard }, color: C.purple, fontSize: 7, align: 'right', bold: true }),
+        makeCell(eng.name.length > 24 ? eng.name.slice(0, 24) + '…' : eng.name, { fill: { color: ei % 2 === 1 ? LIGHT.bgCardAlt : LIGHT.bgCard }, color: LIGHT.textPrimary, fontSize: 7 }),
+        makeCell(eng.value.toLocaleString(), { fill: { color: ei % 2 === 1 ? LIGHT.bgCardAlt : LIGHT.bgCard }, color: LIGHT.purple, fontSize: 7, align: 'right', bold: true }),
       ]),
     ];
 
@@ -799,18 +823,18 @@ export async function generateReportPowerPoint({
       y: rightCardY + 1.86,
       w: 3.75,
       colW: [2.75, 1.0],
-      border: { type: 'solid', pt: 0.5, color: C.border },
+      border: { type: 'solid', pt: 0.5, color: LIGHT.border },
     });
 
-    addSlideFooter(slide, 3);
+    addLightSlideFooter(slide, 3);
   }
 
   // ============================================================
-  // SLIDE 4: ALERT ANALYSIS (MONTH-OVER-MONTH)
+  // SLIDE 4: ALERT ANALYSIS (MONTH-OVER-MONTH) (LIGHT MODE)
   // ============================================================
   {
     const slide = pres.addSlide();
-    addSlideHeader(
+    addLightSlideHeader(
       slide,
       '03. ALERT TELEMETRY',
       'Alert Analysis — Month-over-Month Trends',
@@ -819,7 +843,7 @@ export async function generateReportPowerPoint({
 
     const hasMultiMonth = alertsByMonth && alertsByMonth.length > 1;
 
-    // Left Column: Modern Line Chart or Cyber Bar Chart
+    // Left Column: Modern Light Line Chart or Bar Chart
     const leftX = 0.5;
     const leftY = 1.15;
     const leftW = 4.6;
@@ -830,8 +854,8 @@ export async function generateReportPowerPoint({
       y: leftY,
       w: leftW,
       h: leftH,
-      fill: { color: C.bgCard },
-      line: { color: C.border, width: 1 },
+      fill: { color: LIGHT.bgCard },
+      line: { color: LIGHT.border, width: 1 },
       rectRadius: 0.06,
     });
 
@@ -843,7 +867,7 @@ export async function generateReportPowerPoint({
         h: 0.25,
         fontSize: 9.5,
         bold: true,
-        color: C.purple,
+        color: LIGHT.purple,
         fontFace: FONT,
       });
 
@@ -858,25 +882,25 @@ export async function generateReportPowerPoint({
         y: leftY + 0.45,
         w: leftW - 0.3,
         h: leftH - 0.6,
-        chartColors: DASHBOARD_CHART_COLORS.slice(0, 4),
+        chartColors: LIGHT_CHART_COLORS.slice(0, 4),
         lineSmooth: true,
         lineDataSymbol: 'circle',
         lineDataSymbolSize: 6,
         showLegend: true,
         legendPos: 'b',
-        legendColor: C.textPrimary,
+        legendColor: LIGHT.textPrimary,
         legendFontFace: FONT,
         legendFontSize: 7,
-        catAxisLabelColor: C.textSecondary,
+        catAxisLabelColor: LIGHT.textSecondary,
         catAxisLabelFontFace: FONT,
         catAxisLabelFontSize: 7,
-        valAxisLabelColor: C.textMuted,
+        valAxisLabelColor: LIGHT.textMuted,
         valAxisLabelFontFace: FONT,
         valAxisLabelFontSize: 7,
-        valGridLine: { color: C.border, size: 0.75, style: 'dash' },
+        valGridLine: { color: LIGHT.gridLine, size: 0.75, style: 'dash' },
       });
     } else {
-      // Single month fallback: Top Common Alert Types Cyber Bar Chart
+      // Single month fallback: Top Common Alert Types Light Bar Chart
       slide.addText('// TOP COMMON ALERT TYPES', {
         x: leftX + 0.2,
         y: leftY + 0.15,
@@ -884,7 +908,7 @@ export async function generateReportPowerPoint({
         h: 0.25,
         fontSize: 9.5,
         bold: true,
-        color: C.cyan,
+        color: LIGHT.cyan,
         fontFace: FONT,
       });
 
@@ -905,25 +929,25 @@ export async function generateReportPowerPoint({
           h: leftH - 0.6,
           barDir: 'bar',
           barGapWidthPct: 50,
-          chartColors: [C.cyan],
+          chartColors: [LIGHT.cyan],
           showValue: true,
           showLegend: false,
-          dataLabelColor: C.textPrimary,
+          dataLabelColor: LIGHT.textPrimary,
           dataLabelFontFace: FONT,
           dataLabelFontSize: 7,
           dataLabelFontBold: true,
-          catAxisLabelColor: C.textSecondary,
+          catAxisLabelColor: LIGHT.textSecondary,
           catAxisLabelFontFace: FONT,
           catAxisLabelFontSize: 7,
-          valAxisLabelColor: C.textMuted,
+          valAxisLabelColor: LIGHT.textMuted,
           valAxisLabelFontFace: FONT,
           valAxisLabelFontSize: 7,
-          valGridLine: { color: C.border, size: 0.75, style: 'dash' },
+          valGridLine: { color: LIGHT.gridLine, size: 0.75, style: 'dash' },
         }
       );
     }
 
-    // Right Column: Month-over-Month Change Detail Table
+    // Right Column: Month-over-Month Change Detail Table (Light Mode)
     const rightX = 5.25;
     const rightY = 1.15;
     const rightW = 4.25;
@@ -934,8 +958,8 @@ export async function generateReportPowerPoint({
       y: rightY,
       w: rightW,
       h: rightH,
-      fill: { color: C.bgCard },
-      line: { color: C.border, width: 1 },
+      fill: { color: LIGHT.bgCard },
+      line: { color: LIGHT.border, width: 1 },
       rectRadius: 0.06,
     });
 
@@ -946,26 +970,26 @@ export async function generateReportPowerPoint({
       h: 0.25,
       fontSize: 9.5,
       bold: true,
-      color: C.cyan,
+      color: LIGHT.cyan,
       fontFace: FONT,
     });
 
     const momRows: PptxGenJS.TableRow[] = [
       [
-        makeCell('CLASSIFICATION', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7 }),
-        makeCell('CURRENT', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7, align: 'right' }),
-        makeCell('PREV', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7, align: 'right' }),
-        makeCell('DELTA', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7, align: 'right' }),
-        makeCell('CHANGE', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7, align: 'right' }),
+        makeCell('CLASSIFICATION', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7 }),
+        makeCell('CURRENT', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7, align: 'right' }),
+        makeCell('PREV', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7, align: 'right' }),
+        makeCell('DELTA', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7, align: 'right' }),
+        makeCell('CHANGE', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7, align: 'right' }),
       ],
       ...alertTrend.slice(0, 8).map((r, ri) => {
         const isUp = r.delta > 0;
-        const deltaColor = isUp ? C.red : r.delta < 0 ? C.emerald : C.textSecondary;
-        const rowBg = ri % 2 === 1 ? C.bgElevated : C.bgCard;
+        const deltaColor = isUp ? LIGHT.red : r.delta < 0 ? LIGHT.emerald : LIGHT.textSecondary;
+        const rowBg = ri % 2 === 1 ? LIGHT.bgCardAlt : LIGHT.bgCard;
         return [
-          makeCell(r.classification.length > 18 ? r.classification.slice(0, 18) + '…' : r.classification, { fill: { color: rowBg }, color: C.textPrimary, fontSize: 7 }),
-          makeCell(r.current.toLocaleString(), { fill: { color: rowBg }, color: C.textWhite, fontSize: 7, align: 'right', bold: true }),
-          makeCell(r.previous.toLocaleString(), { fill: { color: rowBg }, color: C.textMuted, fontSize: 7, align: 'right' }),
+          makeCell(r.classification.length > 18 ? r.classification.slice(0, 18) + '…' : r.classification, { fill: { color: rowBg }, color: LIGHT.textPrimary, fontSize: 7 }),
+          makeCell(r.current.toLocaleString(), { fill: { color: rowBg }, color: LIGHT.textPrimary, fontSize: 7, align: 'right', bold: true }),
+          makeCell(r.previous.toLocaleString(), { fill: { color: rowBg }, color: LIGHT.textMuted, fontSize: 7, align: 'right' }),
           makeCell(r.delta > 0 ? `+${r.delta}` : String(r.delta), { fill: { color: rowBg }, color: deltaColor, fontSize: 7, align: 'right', bold: true }),
           makeCell(`${r.deltaPercent > 0 ? '+' : ''}${r.deltaPercent}%`, { fill: { color: rowBg }, color: deltaColor, fontSize: 7, align: 'right', bold: true }),
         ];
@@ -977,32 +1001,32 @@ export async function generateReportPowerPoint({
       y: rightY + 0.45,
       w: rightW - 0.3,
       colW: [1.65, 0.55, 0.55, 0.55, 0.65],
-      border: { type: 'solid', pt: 0.5, color: C.border },
+      border: { type: 'solid', pt: 0.5, color: LIGHT.border },
     });
 
-    addSlideFooter(slide, 4);
+    addLightSlideFooter(slide, 4);
   }
 
   // ============================================================
-  // SLIDE 5: ENDPOINT DETECTIONS & DENSITY
+  // SLIDE 5: ENDPOINT DETECTIONS & DENSITY (LIGHT MODE)
   // ============================================================
   {
     const slide = pres.addSlide();
-    addSlideHeader(
+    addLightSlideHeader(
       slide,
       '04. ENDPOINT TELEMETRY',
       'Top Endpoints by Detection Density',
       'Endpoints exhibiting the highest concentration of threat activity and security telemetry during the reporting period.'
     );
 
-    // Callout note banner across top
+    // Callout note banner across top (Light Amber Alert)
     slide.addShape(pres.ShapeType.roundRect, {
       x: 0.5,
       y: 1.15,
       w: 9.0,
       h: 0.38,
-      fill: { color: C.bgElevated },
-      line: { color: C.amber, width: 1 },
+      fill: { color: LIGHT.chipAmberBg },
+      line: { color: LIGHT.chipAmberBorder, width: 1 },
       rectRadius: 0.04,
     });
 
@@ -1014,14 +1038,14 @@ export async function generateReportPowerPoint({
         w: 8.7,
         h: 0.3,
         fontSize: 7.5,
-        color: C.amber,
+        color: LIGHT.chipAmberText,
         bold: true,
         fontFace: FONT,
         valign: 'middle',
       }
     );
 
-    // Left Column: Horizontal Bar Chart of Top Endpoints
+    // Left Column: Horizontal Bar Chart of Top Endpoints (Light Mode)
     const leftX = 0.5;
     const leftY = 1.62;
     const leftW = 4.6;
@@ -1032,8 +1056,8 @@ export async function generateReportPowerPoint({
       y: leftY,
       w: leftW,
       h: leftH,
-      fill: { color: C.bgCard },
-      line: { color: C.border, width: 1 },
+      fill: { color: LIGHT.bgCard },
+      line: { color: LIGHT.border, width: 1 },
       rectRadius: 0.06,
     });
 
@@ -1044,7 +1068,7 @@ export async function generateReportPowerPoint({
       h: 0.25,
       fontSize: 9.5,
       bold: true,
-      color: C.purple,
+      color: LIGHT.purple,
       fontFace: FONT,
     });
 
@@ -1066,25 +1090,25 @@ export async function generateReportPowerPoint({
           h: leftH - 0.5,
           barDir: 'bar',
           barGapWidthPct: 50,
-          chartColors: [C.purple],
+          chartColors: [LIGHT.purple],
           showValue: true,
           showLegend: false,
-          dataLabelColor: C.textPrimary,
+          dataLabelColor: LIGHT.textPrimary,
           dataLabelFontFace: FONT,
           dataLabelFontSize: 7,
           dataLabelFontBold: true,
-          catAxisLabelColor: C.textSecondary,
+          catAxisLabelColor: LIGHT.textSecondary,
           catAxisLabelFontFace: FONT,
           catAxisLabelFontSize: 7,
-          valAxisLabelColor: C.textMuted,
+          valAxisLabelColor: LIGHT.textMuted,
           valAxisLabelFontFace: FONT,
           valAxisLabelFontSize: 7,
-          valGridLine: { color: C.border, size: 0.75, style: 'dash' },
+          valGridLine: { color: LIGHT.gridLine, size: 0.75, style: 'dash' },
         }
       );
     }
 
-    // Right Column: Endpoint Density Table
+    // Right Column: Endpoint Density Table (Light Mode)
     const rightX = 5.25;
     const rightY = 1.62;
     const rightW = 4.25;
@@ -1095,8 +1119,8 @@ export async function generateReportPowerPoint({
       y: rightY,
       w: rightW,
       h: rightH,
-      fill: { color: C.bgCard },
-      line: { color: C.border, width: 1 },
+      fill: { color: LIGHT.bgCard },
+      line: { color: LIGHT.border, width: 1 },
       rectRadius: 0.06,
     });
 
@@ -1107,27 +1131,27 @@ export async function generateReportPowerPoint({
       h: 0.25,
       fontSize: 9.5,
       bold: true,
-      color: C.cyan,
+      color: LIGHT.cyan,
       fontFace: FONT,
     });
 
     const endpointTableRows: PptxGenJS.TableRow[] = [
       [
-        makeCell('RANK', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7, align: 'center' }),
-        makeCell('ENDPOINT HOST', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7 }),
-        makeCell('INCIDENTS', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7, align: 'right' }),
-        makeCell('ACTION TIER', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7, align: 'center' }),
+        makeCell('RANK', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7, align: 'center' }),
+        makeCell('ENDPOINT HOST', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7 }),
+        makeCell('INCIDENTS', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7, align: 'right' }),
+        makeCell('ACTION TIER', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7, align: 'center' }),
       ],
       ...topEndpoints.slice(0, 8).map((ep, idx) => {
-        const rowBg = idx % 2 === 1 ? C.bgElevated : C.bgCard;
+        const rowBg = idx % 2 === 1 ? LIGHT.bgCardAlt : LIGHT.bgCard;
         const isUrgent = ep.count >= 50;
         return [
-          makeCell(`#${idx + 1}`, { fill: { color: rowBg }, color: C.textMuted, fontSize: 7, align: 'center', bold: true }),
-          makeCell(ep.endpoint.length > 22 ? ep.endpoint.slice(0, 22) + '…' : ep.endpoint, { fill: { color: rowBg }, color: C.textWhite, fontSize: 7, bold: true }),
-          makeCell(ep.count.toLocaleString(), { fill: { color: rowBg }, color: isUrgent ? C.red : C.purple, fontSize: 7, align: 'right', bold: true }),
+          makeCell(`#${idx + 1}`, { fill: { color: rowBg }, color: LIGHT.textMuted, fontSize: 7, align: 'center', bold: true }),
+          makeCell(ep.endpoint.length > 22 ? ep.endpoint.slice(0, 22) + '…' : ep.endpoint, { fill: { color: rowBg }, color: LIGHT.textPrimary, fontSize: 7, bold: true }),
+          makeCell(ep.count.toLocaleString(), { fill: { color: rowBg }, color: isUrgent ? LIGHT.red : LIGHT.purple, fontSize: 7, align: 'right', bold: true }),
           makeCell(isUrgent ? 'ISOLATE HOST' : 'MONITOR & SCAN', {
             fill: { color: rowBg },
-            color: isUrgent ? C.red : C.teal,
+            color: isUrgent ? LIGHT.red : LIGHT.teal,
             fontSize: 6.5,
             align: 'center',
             bold: true,
@@ -1141,25 +1165,25 @@ export async function generateReportPowerPoint({
       y: rightY + 0.42,
       w: rightW - 0.3,
       colW: [0.55, 1.85, 0.75, 1.0],
-      border: { type: 'solid', pt: 0.5, color: C.border },
+      border: { type: 'solid', pt: 0.5, color: LIGHT.border },
     });
 
-    addSlideFooter(slide, 5);
+    addLightSlideFooter(slide, 5);
   }
 
   // ============================================================
-  // SLIDE 6: REGIONAL THREAT HOTSPOTS
+  // SLIDE 6: REGIONAL THREAT HOTSPOTS (LIGHT MODE)
   // ============================================================
   {
     const slide = pres.addSlide();
-    addSlideHeader(
+    addLightSlideHeader(
       slide,
       '05. REGIONAL RISK',
       'Regional Threat Hotspots & Site Velocities',
       'Geographical distribution of incident activity and site-level risk scoring across corporate offices.'
     );
 
-    // Left Column: Site Volume Modern Bar Chart
+    // Left Column: Site Volume Bar Chart (Light Mode)
     const leftX = 0.5;
     const leftY = 1.15;
     const leftW = 4.6;
@@ -1170,8 +1194,8 @@ export async function generateReportPowerPoint({
       y: leftY,
       w: leftW,
       h: leftH,
-      fill: { color: C.bgCard },
-      line: { color: C.border, width: 1 },
+      fill: { color: LIGHT.bgCard },
+      line: { color: LIGHT.border, width: 1 },
       rectRadius: 0.06,
     });
 
@@ -1182,7 +1206,7 @@ export async function generateReportPowerPoint({
       h: 0.25,
       fontSize: 9.5,
       bold: true,
-      color: C.cyan,
+      color: LIGHT.cyan,
       fontFace: FONT,
     });
 
@@ -1204,25 +1228,25 @@ export async function generateReportPowerPoint({
           h: leftH - 0.6,
           barDir: 'bar',
           barGapWidthPct: 50,
-          chartColors: [C.cyan],
+          chartColors: [LIGHT.cyan],
           showValue: true,
           showLegend: false,
-          dataLabelColor: C.textPrimary,
+          dataLabelColor: LIGHT.textPrimary,
           dataLabelFontFace: FONT,
           dataLabelFontSize: 7,
           dataLabelFontBold: true,
-          catAxisLabelColor: C.textSecondary,
+          catAxisLabelColor: LIGHT.textSecondary,
           catAxisLabelFontFace: FONT,
           catAxisLabelFontSize: 7,
-          valAxisLabelColor: C.textMuted,
+          valAxisLabelColor: LIGHT.textMuted,
           valAxisLabelFontFace: FONT,
           valAxisLabelFontSize: 7,
-          valGridLine: { color: C.border, size: 0.75, style: 'dash' },
+          valGridLine: { color: LIGHT.gridLine, size: 0.75, style: 'dash' },
         }
       );
     }
 
-    // Right Column: Site Risk Scores Table
+    // Right Column: Site Risk Scores Table (Light Mode)
     const rightX = 5.25;
     const rightY = 1.15;
     const rightW = 4.25;
@@ -1233,8 +1257,8 @@ export async function generateReportPowerPoint({
       y: rightY,
       w: rightW,
       h: rightH,
-      fill: { color: C.bgCard },
-      line: { color: C.border, width: 1 },
+      fill: { color: LIGHT.bgCard },
+      line: { color: LIGHT.border, width: 1 },
       rectRadius: 0.06,
     });
 
@@ -1245,27 +1269,27 @@ export async function generateReportPowerPoint({
       h: 0.25,
       fontSize: 9.5,
       bold: true,
-      color: C.purple,
+      color: LIGHT.purple,
       fontFace: FONT,
     });
 
     const siteRows: PptxGenJS.TableRow[] = [
       [
-        makeCell('SITE / OFFICE', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7 }),
-        makeCell('CURRENT', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7, align: 'right' }),
-        makeCell('PREV', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7, align: 'right' }),
-        makeCell('DELTA', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7, align: 'right' }),
-        makeCell('RISK SCORE', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7, align: 'right' }),
+        makeCell('SITE / OFFICE', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7 }),
+        makeCell('CURRENT', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7, align: 'right' }),
+        makeCell('PREV', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7, align: 'right' }),
+        makeCell('DELTA', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7, align: 'right' }),
+        makeCell('RISK SCORE', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7, align: 'right' }),
       ],
       ...siteRisks.slice(0, 8).map((s, si) => {
-        const rowBg = si % 2 === 1 ? C.bgElevated : C.bgCard;
+        const rowBg = si % 2 === 1 ? LIGHT.bgCardAlt : LIGHT.bgCard;
         const isUp = s.delta > 0;
         return [
-          makeCell(s.site.length > 18 ? s.site.slice(0, 18) + '…' : s.site, { fill: { color: rowBg }, color: C.textWhite, fontSize: 7 }),
-          makeCell(s.current.toLocaleString(), { fill: { color: rowBg }, color: C.textPrimary, fontSize: 7, align: 'right' }),
-          makeCell(s.previous.toLocaleString(), { fill: { color: rowBg }, color: C.textMuted, fontSize: 7, align: 'right' }),
-          makeCell(s.delta > 0 ? `+${s.delta}` : String(s.delta), { fill: { color: rowBg }, color: isUp ? C.red : C.emerald, fontSize: 7, align: 'right', bold: true }),
-          makeCell(String(s.riskScore), { fill: { color: rowBg }, color: s.riskScore > 60 ? C.red : C.cyan, fontSize: 7, align: 'right', bold: true }),
+          makeCell(s.site.length > 18 ? s.site.slice(0, 18) + '…' : s.site, { fill: { color: rowBg }, color: LIGHT.textPrimary, fontSize: 7 }),
+          makeCell(s.current.toLocaleString(), { fill: { color: rowBg }, color: LIGHT.textPrimary, fontSize: 7, align: 'right' }),
+          makeCell(s.previous.toLocaleString(), { fill: { color: rowBg }, color: LIGHT.textMuted, fontSize: 7, align: 'right' }),
+          makeCell(s.delta > 0 ? `+${s.delta}` : String(s.delta), { fill: { color: rowBg }, color: isUp ? LIGHT.red : LIGHT.emerald, fontSize: 7, align: 'right', bold: true }),
+          makeCell(String(s.riskScore), { fill: { color: rowBg }, color: s.riskScore > 60 ? LIGHT.red : LIGHT.cyan, fontSize: 7, align: 'right', bold: true }),
         ];
       }),
     ];
@@ -1275,18 +1299,18 @@ export async function generateReportPowerPoint({
       y: rightY + 0.45,
       w: rightW - 0.3,
       colW: [1.65, 0.6, 0.6, 0.6, 0.7],
-      border: { type: 'solid', pt: 0.5, color: C.border },
+      border: { type: 'solid', pt: 0.5, color: LIGHT.border },
     });
 
-    addSlideFooter(slide, 6);
+    addLightSlideFooter(slide, 6);
   }
 
   // ============================================================
-  // SLIDE 7: PERSISTENT RISKY ENDPOINTS
+  // SLIDE 7: PERSISTENT RISKY ENDPOINTS (LIGHT MODE)
   // ============================================================
   {
     const slide = pres.addSlide();
-    addSlideHeader(
+    addLightSlideHeader(
       slide,
       '06. PERSISTENT THREATS',
       'Persistent & Chronic Risky Endpoints',
@@ -1294,14 +1318,14 @@ export async function generateReportPowerPoint({
     );
 
     if (recurringEndpoints.length === 0) {
-      // Clean Empty State
+      // Clean Empty State (Light Mode)
       slide.addShape(pres.ShapeType.roundRect, {
         x: 1.5,
         y: 1.8,
         w: 7.0,
         h: 2.2,
-        fill: { color: C.bgCard },
-        line: { color: C.border, width: 1 },
+        fill: { color: LIGHT.bgCard },
+        line: { color: LIGHT.border, width: 1 },
         rectRadius: 0.08,
       });
 
@@ -1312,7 +1336,7 @@ export async function generateReportPowerPoint({
         h: 0.4,
         fontSize: 14,
         bold: true,
-        color: C.emerald,
+        color: LIGHT.emerald,
         align: 'center',
         fontFace: FONT,
       });
@@ -1325,14 +1349,14 @@ export async function generateReportPowerPoint({
           w: 6.0,
           h: 0.8,
           fontSize: 9,
-          color: C.textSecondary,
+          color: LIGHT.textSecondary,
           align: 'center',
           fontFace: FONT,
           lineSpacing: 16,
         }
       );
     } else {
-      // Left Column: Bar chart of recurring endpoints
+      // Left Column: Bar chart of recurring endpoints (Light Mode)
       const leftX = 0.5;
       const leftY = 1.15;
       const leftW = 4.6;
@@ -1343,8 +1367,8 @@ export async function generateReportPowerPoint({
         y: leftY,
         w: leftW,
         h: leftH,
-        fill: { color: C.bgCard },
-        line: { color: C.border, width: 1 },
+        fill: { color: LIGHT.bgCard },
+        line: { color: LIGHT.border, width: 1 },
         rectRadius: 0.06,
       });
 
@@ -1355,7 +1379,7 @@ export async function generateReportPowerPoint({
         h: 0.25,
         fontSize: 9.5,
         bold: true,
-        color: C.rose,
+        color: LIGHT.red,
         fontFace: FONT,
       });
 
@@ -1376,24 +1400,24 @@ export async function generateReportPowerPoint({
           h: leftH - 0.6,
           barDir: 'bar',
           barGapWidthPct: 50,
-          chartColors: [C.rose],
+          chartColors: [LIGHT.red],
           showValue: true,
           showLegend: false,
-          dataLabelColor: C.textPrimary,
+          dataLabelColor: LIGHT.textPrimary,
           dataLabelFontFace: FONT,
           dataLabelFontSize: 7,
           dataLabelFontBold: true,
-          catAxisLabelColor: C.textSecondary,
+          catAxisLabelColor: LIGHT.textSecondary,
           catAxisLabelFontFace: FONT,
           catAxisLabelFontSize: 7,
-          valAxisLabelColor: C.textMuted,
+          valAxisLabelColor: LIGHT.textMuted,
           valAxisLabelFontFace: FONT,
           valAxisLabelFontSize: 7,
-          valGridLine: { color: C.border, size: 0.75, style: 'dash' },
+          valGridLine: { color: LIGHT.gridLine, size: 0.75, style: 'dash' },
         }
       );
 
-      // Right Column: Recurring Endpoints Table
+      // Right Column: Recurring Endpoints Table (Light Mode)
       const rightX = 5.25;
       const rightY = 1.15;
       const rightW = 4.25;
@@ -1404,8 +1428,8 @@ export async function generateReportPowerPoint({
         y: rightY,
         w: rightW,
         h: rightH,
-        fill: { color: C.bgCard },
-        line: { color: C.border, width: 1 },
+        fill: { color: LIGHT.bgCard },
+        line: { color: LIGHT.border, width: 1 },
         rectRadius: 0.06,
       });
 
@@ -1416,26 +1440,26 @@ export async function generateReportPowerPoint({
         h: 0.25,
         fontSize: 9.5,
         bold: true,
-        color: C.amber,
+        color: LIGHT.amber,
         fontFace: FONT,
       });
 
       const recurringTableRows: PptxGenJS.TableRow[] = [
         [
-          makeCell('RANK', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7, align: 'center' }),
-          makeCell('HOST', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7 }),
-          makeCell('MOS', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7, align: 'center' }),
-          makeCell('TOTAL', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7, align: 'right' }),
-          makeCell('SCORE', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7, align: 'right' }),
+          makeCell('RANK', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7, align: 'center' }),
+          makeCell('HOST', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7 }),
+          makeCell('MOS', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7, align: 'center' }),
+          makeCell('TOTAL', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7, align: 'right' }),
+          makeCell('SCORE', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7, align: 'right' }),
         ],
         ...recurringEndpoints.slice(0, 8).map((e, idx) => {
-          const rowBg = idx % 2 === 1 ? C.bgElevated : C.bgCard;
+          const rowBg = idx % 2 === 1 ? LIGHT.bgCardAlt : LIGHT.bgCard;
           return [
-            makeCell(`#${idx + 1}`, { fill: { color: rowBg }, color: C.textMuted, fontSize: 7, align: 'center', bold: true }),
-            makeCell(e.endpoint.length > 20 ? e.endpoint.slice(0, 20) + '…' : e.endpoint, { fill: { color: rowBg }, color: C.textWhite, fontSize: 7, bold: true }),
-            makeCell(`${e.monthsAppeared}m`, { fill: { color: rowBg }, color: C.amber, fontSize: 7, align: 'center', bold: true }),
-            makeCell(e.totalIncidents.toLocaleString(), { fill: { color: rowBg }, color: C.rose, fontSize: 7, align: 'right', bold: true }),
-            makeCell(String(e.rankScore), { fill: { color: rowBg }, color: C.cyan, fontSize: 7, align: 'right', bold: true }),
+            makeCell(`#${idx + 1}`, { fill: { color: rowBg }, color: LIGHT.textMuted, fontSize: 7, align: 'center', bold: true }),
+            makeCell(e.endpoint.length > 20 ? e.endpoint.slice(0, 20) + '…' : e.endpoint, { fill: { color: rowBg }, color: LIGHT.textPrimary, fontSize: 7, bold: true }),
+            makeCell(`${e.monthsAppeared}m`, { fill: { color: rowBg }, color: LIGHT.amber, fontSize: 7, align: 'center', bold: true }),
+            makeCell(e.totalIncidents.toLocaleString(), { fill: { color: rowBg }, color: LIGHT.red, fontSize: 7, align: 'right', bold: true }),
+            makeCell(String(e.rankScore), { fill: { color: rowBg }, color: LIGHT.cyan, fontSize: 7, align: 'right', bold: true }),
           ];
         }),
       ];
@@ -1445,31 +1469,31 @@ export async function generateReportPowerPoint({
         y: rightY + 0.45,
         w: rightW - 0.3,
         colW: [0.55, 1.8, 0.65, 0.65, 0.6],
-        border: { type: 'solid', pt: 0.5, color: C.border },
+        border: { type: 'solid', pt: 0.5, color: LIGHT.border },
       });
     }
 
-    addSlideFooter(slide, 7);
+    addLightSlideFooter(slide, 7);
   }
 
   // ============================================================
-  // SLIDE 8: INCIDENT RESOLUTION STATUS & FUNNEL
+  // SLIDE 8: INCIDENT RESOLUTION STATUS & FUNNEL (LIGHT MODE)
   // ============================================================
   {
     const slide = pres.addSlide();
-    addSlideHeader(
+    addLightSlideHeader(
       slide,
       '07. INCIDENT LIFECYCLE',
       'Incident Resolution Status & Triage Velocities',
       'Operational response metrics, funnel closure rates, and monthly SOC remediation trajectory.'
     );
 
-    // Top Funnel 4 Stages Strip
+    // Top Funnel 4 Stages Strip (Light Mode)
     const funnelStages = [
-      { label: 'DETECTED', count: detected, color: C.purple },
-      { label: 'TRIAGED', count: investigated, color: C.cyan },
-      { label: 'ACTION TAKEN', count: actionTaken, color: C.amber },
-      { label: 'RESOLVED & CLOSED', count: resolved, color: C.emerald },
+      { label: 'DETECTED', count: detected, color: LIGHT.purple },
+      { label: 'TRIAGED', count: investigated, color: LIGHT.cyan },
+      { label: 'ACTION TAKEN', count: actionTaken, color: LIGHT.amber },
+      { label: 'RESOLVED & CLOSED', count: resolved, color: LIGHT.emerald },
     ];
 
     const funnelY = 1.15;
@@ -1482,8 +1506,8 @@ export async function generateReportPowerPoint({
         y: funnelY,
         w: funnelCardW,
         h: 0.95,
-        fill: { color: C.bgCard },
-        line: { color: C.border, width: 1 },
+        fill: { color: LIGHT.bgCard },
+        line: { color: LIGHT.border, width: 1 },
         rectRadius: 0.05,
       });
 
@@ -1497,15 +1521,15 @@ export async function generateReportPowerPoint({
 
       slide.addText(
         [
-          { text: `STAGE 0${idx + 1}\n`, options: { fontSize: 6.5, color: C.textMuted, bold: true } },
-          { text: `${stage.label}\n`, options: { fontSize: 7.5, color: C.textSecondary, bold: true } },
+          { text: `STAGE 0${idx + 1}\n`, options: { fontSize: 6.5, color: LIGHT.textMuted, bold: true } },
+          { text: `${stage.label}\n`, options: { fontSize: 7.5, color: LIGHT.textSecondary, bold: true } },
           { text: stage.count.toLocaleString(), options: { fontSize: 16, color: stage.color, bold: true } },
         ],
         { x: fX + 0.1, y: funnelY + 0.1, w: funnelCardW - 0.2, h: 0.8, fontFace: FONT }
       );
     });
 
-    // Bottom Left: Resolution Breakdown Modern Doughnut Chart
+    // Bottom Left: Resolution Breakdown Modern Light Doughnut Chart
     const leftX = 0.5;
     const leftY = 2.25;
     const leftW = 4.6;
@@ -1516,8 +1540,8 @@ export async function generateReportPowerPoint({
       y: leftY,
       w: leftW,
       h: leftH,
-      fill: { color: C.bgCard },
-      line: { color: C.border, width: 1 },
+      fill: { color: LIGHT.bgCard },
+      line: { color: LIGHT.border, width: 1 },
       rectRadius: 0.06,
     });
 
@@ -1528,7 +1552,7 @@ export async function generateReportPowerPoint({
       h: 0.25,
       fontSize: 9.5,
       bold: true,
-      color: C.emerald,
+      color: LIGHT.emerald,
       fontFace: FONT,
     });
 
@@ -1548,23 +1572,23 @@ export async function generateReportPowerPoint({
           y: leftY + 0.45,
           w: leftW - 0.4,
           h: leftH - 0.55,
-          chartColors: [C.emerald, C.red, C.amber, C.purple, C.cyan],
+          chartColors: [LIGHT.emerald, LIGHT.red, LIGHT.amber, LIGHT.purple, LIGHT.cyan],
           holeSize: 68,
           showValue: true,
-          dataLabelColor: C.textWhite,
+          dataLabelColor: LIGHT.textPrimary,
           dataLabelFontFace: FONT,
           dataLabelFontSize: 7.5,
           dataLabelFontBold: true,
           showLegend: true,
           legendPos: 'r',
-          legendColor: C.textPrimary,
+          legendColor: LIGHT.textPrimary,
           legendFontFace: FONT,
           legendFontSize: 7.5,
         }
       );
     }
 
-    // Bottom Right: Monthly Resolution Trend Table
+    // Bottom Right: Monthly Resolution Trend Table (Light Mode)
     const rightX = 5.25;
     const rightY = 2.25;
     const rightW = 4.25;
@@ -1575,8 +1599,8 @@ export async function generateReportPowerPoint({
       y: rightY,
       w: rightW,
       h: rightH,
-      fill: { color: C.bgCard },
-      line: { color: C.border, width: 1 },
+      fill: { color: LIGHT.bgCard },
+      line: { color: LIGHT.border, width: 1 },
       rectRadius: 0.06,
     });
 
@@ -1587,24 +1611,24 @@ export async function generateReportPowerPoint({
       h: 0.25,
       fontSize: 9.5,
       bold: true,
-      color: C.cyan,
+      color: LIGHT.cyan,
       fontFace: FONT,
     });
 
     const resTrendRows: PptxGenJS.TableRow[] = [
       [
-        makeCell('MONTH', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7 }),
-        makeCell('RESOLVED', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7, align: 'right' }),
-        makeCell('OPEN', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7, align: 'right' }),
-        makeCell('IN PROGRESS', { fill: { color: C.bgHeader }, color: C.cyan, bold: true, fontSize: 7, align: 'right' }),
+        makeCell('MONTH', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7 }),
+        makeCell('RESOLVED', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7, align: 'right' }),
+        makeCell('OPEN', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7, align: 'right' }),
+        makeCell('IN PROGRESS', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 7, align: 'right' }),
       ],
       ...resolution.trendByMonth.slice(0, 6).map((t, ti) => {
-        const rowBg = ti % 2 === 1 ? C.bgElevated : C.bgCard;
+        const rowBg = ti % 2 === 1 ? LIGHT.bgCardAlt : LIGHT.bgCard;
         return [
-          makeCell(t.month, { fill: { color: rowBg }, color: C.textWhite, fontSize: 7, bold: true }),
-          makeCell(t.resolved.toLocaleString(), { fill: { color: rowBg }, color: C.emerald, fontSize: 7, align: 'right', bold: true }),
-          makeCell(t.unresolved.toLocaleString(), { fill: { color: rowBg }, color: C.red, fontSize: 7, align: 'right' }),
-          makeCell(t.inProgress.toLocaleString(), { fill: { color: rowBg }, color: C.amber, fontSize: 7, align: 'right' }),
+          makeCell(t.month, { fill: { color: rowBg }, color: LIGHT.textPrimary, fontSize: 7, bold: true }),
+          makeCell(t.resolved.toLocaleString(), { fill: { color: rowBg }, color: LIGHT.emerald, fontSize: 7, align: 'right', bold: true }),
+          makeCell(t.unresolved.toLocaleString(), { fill: { color: rowBg }, color: LIGHT.red, fontSize: 7, align: 'right' }),
+          makeCell(t.inProgress.toLocaleString(), { fill: { color: rowBg }, color: LIGHT.amber, fontSize: 7, align: 'right' }),
         ];
       }),
     ];
@@ -1614,30 +1638,30 @@ export async function generateReportPowerPoint({
       y: rightY + 0.45,
       w: rightW - 0.3,
       colW: [1.5, 0.8, 0.8, 0.8],
-      border: { type: 'solid', pt: 0.5, color: C.border },
+      border: { type: 'solid', pt: 0.5, color: LIGHT.border },
     });
 
-    addSlideFooter(slide, 8);
+    addLightSlideFooter(slide, 8);
   }
 
   // ============================================================
-  // SLIDE 9: INFRA <-> EDR ASSET RECONCILIATION
+  // SLIDE 9: INFRA <-> EDR ASSET RECONCILIATION (LIGHT MODE)
   // ============================================================
   {
     const slide = pres.addSlide();
-    addSlideHeader(
+    addLightSlideHeader(
       slide,
       '08. ASSET HYGIENE',
       'Infra ↔ EDR Asset Reconciliation',
       'Inventory reconciliation identifying coverage blind spots, unmonitored devices, and ghost agent endpoints.'
     );
 
-    // 4 Asset Cards across top
+    // 4 Asset Cards across top (Light Mode)
     const assetCards = [
-      { label: 'TOTAL IT ASSETS', value: reconciliation.totalAssets.toLocaleString(), color: C.textWhite },
-      { label: 'MATCHED / PROTECTED', value: reconciliation.matched.toLocaleString(), color: C.emerald },
-      { label: 'UNPROTECTED ASSETS', value: reconciliation.unprotected.toLocaleString(), color: C.red },
-      { label: 'GHOST AGENTS', value: reconciliation.ghostAgents.toLocaleString(), color: C.amber },
+      { label: 'TOTAL IT ASSETS', value: reconciliation.totalAssets.toLocaleString(), color: LIGHT.purple },
+      { label: 'MATCHED / PROTECTED', value: reconciliation.matched.toLocaleString(), color: LIGHT.emerald },
+      { label: 'UNPROTECTED ASSETS', value: reconciliation.unprotected.toLocaleString(), color: LIGHT.red },
+      { label: 'GHOST AGENTS', value: reconciliation.ghostAgents.toLocaleString(), color: LIGHT.amber },
     ];
 
     const assetY = 1.15;
@@ -1648,8 +1672,8 @@ export async function generateReportPowerPoint({
         y: assetY,
         w: 2.18,
         h: 0.85,
-        fill: { color: C.bgCard },
-        line: { color: C.border, width: 1 },
+        fill: { color: LIGHT.bgCard },
+        line: { color: LIGHT.border, width: 1 },
         rectRadius: 0.05,
       });
 
@@ -1663,22 +1687,22 @@ export async function generateReportPowerPoint({
 
       slide.addText(
         [
-          { text: `${k.label}\n`, options: { fontSize: 6.5, color: C.textSecondary, bold: true } },
+          { text: `${k.label}\n`, options: { fontSize: 6.5, color: LIGHT.textMuted, bold: true } },
           { text: k.value, options: { fontSize: 16, color: k.color, bold: true } },
         ],
         { x: aX + 0.1, y: assetY + 0.14, w: 1.98, h: 0.65, fontFace: FONT }
       );
     });
 
-    // Deployment Coverage Cyber Progress Bar
+    // Deployment Coverage Clean Light Progress Bar
     const covRate = reconciliation.totalAssets > 0 ? Math.round((reconciliation.matched / reconciliation.totalAssets) * 100) : 100;
     slide.addShape(pres.ShapeType.roundRect, {
       x: 0.5,
       y: 2.12,
       w: 9.0,
       h: 0.55,
-      fill: { color: C.bgCard },
-      line: { color: C.border, width: 1 },
+      fill: { color: LIGHT.bgCard },
+      line: { color: LIGHT.border, width: 1 },
       rectRadius: 0.05,
     });
 
@@ -1689,7 +1713,7 @@ export async function generateReportPowerPoint({
       h: 0.2,
       fontSize: 8.5,
       bold: true,
-      color: C.textWhite,
+      color: LIGHT.textPrimary,
       fontFace: FONT,
     });
 
@@ -1699,7 +1723,7 @@ export async function generateReportPowerPoint({
       w: 4.8,
       h: 0.2,
       fontSize: 7.5,
-      color: C.textSecondary,
+      color: LIGHT.textSecondary,
       align: 'right',
       fontFace: FONT,
     });
@@ -1710,7 +1734,7 @@ export async function generateReportPowerPoint({
       y: 2.42,
       w: 8.6,
       h: 0.14,
-      fill: { color: C.bgElevated },
+      fill: { color: LIGHT.border },
       rectRadius: 0.07,
     });
     // Fill
@@ -1719,11 +1743,11 @@ export async function generateReportPowerPoint({
       y: 2.42,
       w: Math.max(0.2, (covRate / 100) * 8.6),
       h: 0.14,
-      fill: { color: covRate >= 90 ? C.emerald : covRate >= 75 ? C.amber : C.red },
+      fill: { color: covRate >= 90 ? LIGHT.emerald : covRate >= 75 ? LIGHT.amber : LIGHT.red },
       rectRadius: 0.07,
     });
 
-    // Bottom Unprotected Assets Grid
+    // Bottom Unprotected Assets Grid (Clean Light Mode)
     const unprotX = 0.5;
     const unprotY = 2.8;
     const unprotW = 9.0;
@@ -1734,8 +1758,8 @@ export async function generateReportPowerPoint({
       y: unprotY,
       w: unprotW,
       h: unprotH,
-      fill: { color: C.bgCard },
-      line: { color: C.border, width: 1 },
+      fill: { color: LIGHT.bgCard },
+      line: { color: LIGHT.border, width: 1 },
       rectRadius: 0.06,
     });
 
@@ -1746,7 +1770,7 @@ export async function generateReportPowerPoint({
       h: 0.25,
       fontSize: 9.5,
       bold: true,
-      color: C.red,
+      color: LIGHT.red,
       fontFace: FONT,
     });
 
@@ -1759,11 +1783,11 @@ export async function generateReportPowerPoint({
         h: 0.5,
         fontSize: 9.5,
         bold: true,
-        color: C.emerald,
+        color: LIGHT.emerald,
         fontFace: FONT,
       });
     } else {
-      // 4 columns of cyber tag chips
+      // 4 columns of clean light-mode tag chips
       const displayTags = unprotList.slice(0, 24);
       const cols = 4;
       const tagW = 2.05;
@@ -1780,8 +1804,8 @@ export async function generateReportPowerPoint({
           y: tY,
           w: tagW,
           h: tagH,
-          fill: { color: '2A151B' }, // Dark red chip surface
-          line: { color: '7F1D1D', width: 0.75 },
+          fill: { color: LIGHT.chipRedBg },
+          line: { color: LIGHT.chipRedBorder, width: 0.75 },
           rectRadius: 0.04,
         });
 
@@ -1791,7 +1815,7 @@ export async function generateReportPowerPoint({
           w: tagW - 0.16,
           h: tagH - 0.08,
           fontSize: 7,
-          color: 'FCA5A5',
+          color: LIGHT.chipRedText,
           bold: true,
           fontFace: FONT,
           align: 'center',
@@ -1808,7 +1832,7 @@ export async function generateReportPowerPoint({
             w: 8.6,
             h: 0.2,
             fontSize: 7,
-            color: C.textMuted,
+            color: LIGHT.textMuted,
             align: 'center',
             fontFace: FONT,
           }
@@ -1816,7 +1840,7 @@ export async function generateReportPowerPoint({
       }
     }
 
-    addSlideFooter(slide, 9);
+    addLightSlideFooter(slide, 9);
   }
 
   // Generate binary presentation blob
