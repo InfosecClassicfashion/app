@@ -9,6 +9,7 @@ import {
   faCircleCheck,
   faCircleExclamation,
   faEye,
+  faFilePowerpoint,
 } from '@fortawesome/free-solid-svg-icons';
 import { useDashboard } from '@/contexts/DashboardContext';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -229,6 +230,31 @@ export default function ReportPage() {
     }
   };
 
+  // ---- PowerPoint Export (pptxgenjs) ----
+  const handlePptxExport = async () => {
+    setStatus('generating');
+    setStatusMsg('Compiling executive PowerPoint presentation with pptxgenjs…');
+    try {
+      const { generateReportPowerPoint } = await import('@/components/report/pptxReportGenerator');
+      const pptxBlob = await generateReportPowerPoint({
+        analytics,
+        months,
+        reportingMonth,
+        accountName: 'Classic Fashion Apparel',
+      });
+      const safeMonth = (reportingMonth || 'monthly').replace(/[^a-zA-Z0-9_-]/g, '_');
+      const filename = `EDR_Security_Report_${safeMonth}.pptx`;
+      triggerFileDownload(pptxBlob, filename);
+
+      setStatus('done');
+      setStatusMsg(`Downloaded: ${filename}`);
+    } catch (err) {
+      console.error('PowerPoint export failed:', err);
+      setStatus('error');
+      setStatusMsg(String(err));
+    }
+  };
+
   const isGenerating = status === 'generating';
   const statusIcon = status === 'done' ? faCircleCheck : status === 'error' ? faCircleExclamation : faFileLines;
   const statusColor = status === 'done' ? '#10B981' : status === 'error' ? '#EF4444' : '#2563EB';
@@ -255,6 +281,9 @@ export default function ReportPage() {
               </h2>
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/25">
                 react-pdf
+              </span>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/25">
+                pptxgenjs
               </span>
             </div>
             <p className="text-sm text-[var(--text-muted)] mt-1">
@@ -296,7 +325,7 @@ export default function ReportPage() {
         )}
 
         {/* Export & Preview buttons */}
-        <div className="mt-5 flex items-center gap-3">
+        <div className="mt-5 flex flex-wrap items-center gap-3">
           <DropdownMenu>
             <DropdownMenuTrigger render={
               <Button
@@ -313,8 +342,15 @@ export default function ReportPage() {
             } />
             <DropdownMenuContent
               align="start"
-              className="bg-[var(--bg-elevated)] border-white/10 text-[var(--text-primary)] w-52"
+              className="bg-[var(--bg-elevated)] border-white/10 text-[var(--text-primary)] w-56"
             >
+              <DropdownMenuItem
+                onClick={handlePptxExport}
+                className="text-sm cursor-pointer focus:bg-white/[0.05]"
+              >
+                <FontAwesomeIcon icon={faFilePowerpoint} className="w-4 h-4 mr-2 text-amber-400" />
+                Export as PowerPoint (.pptx)
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={handlePdfExport}
                 className="text-sm cursor-pointer focus:bg-white/[0.05]"
@@ -343,6 +379,17 @@ export default function ReportPage() {
             variant="outline"
             size="sm"
             disabled={isGenerating}
+            onClick={handlePptxExport}
+            className="text-xs gap-1.5 border-amber-500/30 text-amber-300 hover:text-white hover:bg-amber-500/20"
+          >
+            <FontAwesomeIcon icon={faFilePowerpoint} className="w-3.5 h-3.5 text-amber-400" />
+            PowerPoint (.pptx)
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={isGenerating}
             onClick={handlePreviewPdf}
             className="text-xs gap-1.5 border-white/10 text-[var(--text-secondary)] hover:text-white"
           >
@@ -363,7 +410,7 @@ export default function ReportPage() {
         </div>
 
         <p className="text-[11px] text-[var(--text-dim)] mt-3">
-          Vector rendering with @react-pdf/renderer produces high-resolution, selectable PDF documents in 1–2 seconds.
+          Vector rendering with @react-pdf/renderer and executive slide decks with pptxgenjs produce high-resolution, editable deliverables in 1–2 seconds.
         </p>
       </div>
     </div>
