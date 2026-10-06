@@ -166,9 +166,11 @@ export async function generateReportPowerPoint({
     reconciliation,
     top5Classes,
     alertsByMonth,
+    topThreatFiles,
+    topOriginatingApps,
   } = analytics;
 
-  const totalPages = 9;
+  const totalPages = 10;
 
   // Funnel calculations
   const totalDetected = kpis[0]?.value;
@@ -281,7 +283,7 @@ export async function generateReportPowerPoint({
       fontFace: FONT,
     });
 
-    slide.addText(`SLIDE 0${pageNum} // 0${totalPages}`, {
+    slide.addText(`SLIDE ${String(pageNum).padStart(2, '0')} // ${String(totalPages).padStart(2, '0')}`, {
       x: 7.5,
       y: 5.25,
       w: 2.0,
@@ -463,22 +465,23 @@ export async function generateReportPowerPoint({
       'Consolidated monthly cybersecurity telemetry captured by SentinelOne agents across enterprise endpoints.'
     );
 
-    // Left Column: Agenda items list (7 sections)
+    // Left Column: Agenda items list (8 sections)
     const agendaItems = [
       { num: '01', title: 'Executive Summary', desc: 'Key performance metrics, classification breakdown & verdict distribution' },
       { num: '02', title: 'Alert Analysis & MoM Trends', desc: 'Month-over-month telemetry comparison & high-frequency alerts' },
-      { num: '03', title: 'Endpoint Detections & Density', desc: 'Endpoints generating the highest threat & alert frequencies' },
-      { num: '04', title: 'Regional Threat Hotspots', desc: 'Geographical and site-level alert volumes and risk scoring' },
-      { num: '05', title: 'Persistent Risky Endpoints', desc: 'Endpoints exhibiting recurring detections across multiple cycles' },
-      { num: '06', title: 'Incident Resolution Status', desc: 'Triage velocities, resolution status distributions & trends' },
-      { num: '07', title: 'Asset Reconciliation', desc: 'Coverage alignment between IT asset inventory and active EDR agents' },
+      { num: '03', title: 'Top Threat Files & Payloads', desc: 'High-frequency malicious binaries, payloads, and detection counts' },
+      { num: '04', title: 'Endpoint Detections & Density', desc: 'Endpoints generating the highest threat & alert frequencies' },
+      { num: '05', title: 'Regional Threat Hotspots', desc: 'Geographical and site-level alert volumes and risk scoring' },
+      { num: '06', title: 'Persistent Risky Endpoints', desc: 'Endpoints exhibiting recurring detections across multiple cycles' },
+      { num: '07', title: 'Incident Resolution Status', desc: 'Triage velocities, resolution status distributions & trends' },
+      { num: '08', title: 'Asset Reconciliation', desc: 'Coverage alignment between IT asset inventory and active EDR agents' },
     ];
 
-    const startY = 1.25;
-    const itemH = 0.5;
+    const startY = 1.22;
+    const itemH = 0.43;
 
     agendaItems.forEach((item, idx) => {
-      const yPos = startY + idx * (itemH + 0.05);
+      const yPos = startY + idx * (itemH + 0.04);
 
       // White card container
       slide.addShape(pres.ShapeType.roundRect, {
@@ -494,19 +497,19 @@ export async function generateReportPowerPoint({
       // Number badge pill
       slide.addShape(pres.ShapeType.roundRect, {
         x: 0.6,
-        y: yPos + 0.1,
+        y: yPos + 0.07,
         w: 0.38,
-        h: 0.3,
+        h: 0.29,
         fill: { color: LIGHT.bgCardAlt },
         line: { color: LIGHT.border, width: 1 },
         rectRadius: 0.04,
       });
       slide.addText(item.num, {
         x: 0.6,
-        y: yPos + 0.1,
+        y: yPos + 0.07,
         w: 0.38,
-        h: 0.3,
-        fontSize: 8.5,
+        h: 0.29,
+        fontSize: 8,
         bold: true,
         color: LIGHT.purple,
         align: 'center',
@@ -517,10 +520,10 @@ export async function generateReportPowerPoint({
       // Text Title & Desc
       slide.addText(
         [
-          { text: `${item.title}  `, options: { fontSize: 9, bold: true, color: LIGHT.textPrimary } },
-          { text: `— ${item.desc}`, options: { fontSize: 7.5, color: LIGHT.textSecondary } },
+          { text: `${item.title}  `, options: { fontSize: 8.5, bold: true, color: LIGHT.textPrimary } },
+          { text: `— ${item.desc}`, options: { fontSize: 7.2, color: LIGHT.textSecondary } },
         ],
-        { x: 1.08, y: yPos + 0.06, w: 4.8, h: itemH - 0.1, fontFace: FONT, valign: 'middle' }
+        { x: 1.08, y: yPos + 0.04, w: 4.8, h: itemH - 0.08, fontFace: FONT, valign: 'middle' }
       );
     });
 
@@ -1008,13 +1011,317 @@ export async function generateReportPowerPoint({
   }
 
   // ============================================================
-  // SLIDE 5: ENDPOINT DETECTIONS & DENSITY (LIGHT MODE)
+  // SLIDE 5: TOP THREAT FILES & PAYLOADS (LIGHT MODE)
   // ============================================================
   {
     const slide = pres.addSlide();
     addLightSlideHeader(
       slide,
-      '04. ENDPOINT TELEMETRY',
+      '04. THREAT INTELLIGENCE',
+      'Top Threat Files & Payloads',
+      'High-frequency binaries, malicious payloads, and target execution telemetry ranked by detection count.'
+    );
+
+    const threatFiles = (topThreatFiles || []).filter((f) => f && f.fileName);
+    const totalThreatDetections = threatFiles.reduce((acc, f) => acc + (f.count || 0), 0);
+    const topFile = threatFiles[0];
+    const topPayloadName = topFile?.fileName || 'None Detected';
+    const topPayloadCount = topFile?.count ?? 0;
+    const topApp = (topOriginatingApps || [])[0];
+
+    // 4 KPI Summary Cards across top (Light Mode)
+    const kpiCards = [
+      {
+        label: 'ACTIVE THREAT FILES',
+        value: `${threatFiles.length} Binaries`,
+        sub: 'Unique payload files',
+        color: LIGHT.purple,
+      },
+      {
+        label: 'TOTAL FILE DETECTIONS',
+        value: totalThreatDetections.toLocaleString(),
+        sub: 'Aggregated hit count',
+        color: LIGHT.red,
+      },
+      {
+        label: 'TOP THREAT PAYLOAD',
+        value: `${topPayloadCount.toLocaleString()} Detections`,
+        sub: topPayloadName.length > 22 ? topPayloadName.slice(0, 22) + '…' : topPayloadName,
+        color: LIGHT.rose,
+      },
+      {
+        label: 'TOP EXECUTION VECTOR',
+        value: topApp ? (topApp.appName.length > 16 ? topApp.appName.slice(0, 16) + '…' : topApp.appName) : (topFile?.topEndpoint || 'N/A'),
+        sub: topApp ? `${topApp.count.toLocaleString()} originating hits` : 'Target host vector',
+        color: LIGHT.cyan,
+      },
+    ];
+
+    const kpiY = 1.15;
+    kpiCards.forEach((k, idx) => {
+      const kX = 0.5 + idx * 2.28;
+      // White Card Container
+      slide.addShape(pres.ShapeType.roundRect, {
+        x: kX,
+        y: kpiY,
+        w: 2.18,
+        h: 0.72,
+        fill: { color: LIGHT.bgCard },
+        line: { color: LIGHT.border, width: 1 },
+        rectRadius: 0.05,
+      });
+
+      // Top colored indicator bar
+      slide.addShape(pres.ShapeType.rect, {
+        x: kX,
+        y: kpiY,
+        w: 2.18,
+        h: 0.03,
+        fill: { color: k.color },
+      });
+
+      slide.addText(
+        [
+          { text: `${k.label}\n`, options: { fontSize: 6.2, color: LIGHT.textMuted, bold: true } },
+          { text: `${k.value}\n`, options: { fontSize: 13, color: k.color, bold: true } },
+          { text: k.sub, options: { fontSize: 6.5, color: LIGHT.textSecondary } },
+        ],
+        { x: kX + 0.1, y: kpiY + 0.08, w: 1.98, h: 0.6, fontFace: FONT }
+      );
+    });
+
+    if (threatFiles.length === 0) {
+      // Empty state
+      slide.addShape(pres.ShapeType.roundRect, {
+        x: 1.5,
+        y: 2.3,
+        w: 7.0,
+        h: 2.0,
+        fill: { color: LIGHT.bgCard },
+        line: { color: LIGHT.border, width: 1 },
+        rectRadius: 0.08,
+      });
+      slide.addText('✓ ZERO ACTIVE THREAT PAYLOADS DETECTED', {
+        x: 1.5,
+        y: 2.7,
+        w: 7.0,
+        h: 0.35,
+        fontSize: 13,
+        bold: true,
+        color: LIGHT.emerald,
+        align: 'center',
+        fontFace: FONT,
+      });
+      slide.addText(
+        'No high-frequency binaries, scripts, or malicious payload files were flagged during this reporting cycle.',
+        {
+          x: 1.8,
+          y: 3.1,
+          w: 6.4,
+          h: 0.4,
+          fontSize: 8.5,
+          color: LIGHT.textSecondary,
+          align: 'center',
+          fontFace: FONT,
+        }
+      );
+    } else {
+      const contentY = 1.98;
+      const contentH = 3.1;
+
+      // Left Column: Horizontal Bar Chart of Top Payloads by Detection Count
+      const leftX = 0.5;
+      const leftW = 4.4;
+
+      slide.addShape(pres.ShapeType.roundRect, {
+        x: leftX,
+        y: contentY,
+        w: leftW,
+        h: contentH,
+        fill: { color: LIGHT.bgCard },
+        line: { color: LIGHT.border, width: 1 },
+        rectRadius: 0.06,
+      });
+
+      slide.addText('// PAYLOAD DETECTION FREQUENCY', {
+        x: leftX + 0.2,
+        y: contentY + 0.12,
+        w: 4.0,
+        h: 0.22,
+        fontSize: 9.5,
+        bold: true,
+        color: LIGHT.rose,
+        fontFace: FONT,
+      });
+
+      slide.addText('Top binaries ranked by aggregate detection count', {
+        x: leftX + 0.2,
+        y: contentY + 0.32,
+        w: 4.0,
+        h: 0.18,
+        fontSize: 7,
+        color: LIGHT.textMuted,
+        fontFace: FONT,
+      });
+
+      const chartSlice = threatFiles.slice(0, 6);
+      if (chartSlice.length > 0) {
+        slide.addChart(
+          pres.ChartType.bar,
+          [
+            {
+              name: 'Detections',
+              labels: chartSlice.map((f) => (f.fileName.length > 18 ? f.fileName.slice(0, 18) + '…' : f.fileName)),
+              values: chartSlice.map((f) => f.count),
+            },
+          ],
+          {
+            x: leftX + 0.15,
+            y: contentY + 0.52,
+            w: leftW - 0.3,
+            h: contentH - 1.05,
+            barDir: 'bar',
+            barGapWidthPct: 45,
+            chartColors: [LIGHT.rose],
+            showValue: true,
+            showLegend: false,
+            dataLabelColor: LIGHT.textPrimary,
+            dataLabelFontFace: FONT,
+            dataLabelFontSize: 7,
+            dataLabelFontBold: true,
+            catAxisLabelColor: LIGHT.textSecondary,
+            catAxisLabelFontFace: FONT,
+            catAxisLabelFontSize: 6.8,
+            valAxisLabelColor: LIGHT.textMuted,
+            valAxisLabelFontFace: FONT,
+            valAxisLabelFontSize: 6.8,
+            valGridLine: { color: LIGHT.gridLine, size: 0.75, style: 'dash' },
+          }
+        );
+      }
+
+      // Execution context badge footer under chart
+      slide.addShape(pres.ShapeType.roundRect, {
+        x: leftX + 0.15,
+        y: contentY + contentH - 0.44,
+        w: leftW - 0.3,
+        h: 0.34,
+        fill: { color: LIGHT.bgCardAlt },
+        line: { color: LIGHT.border, width: 0.75 },
+        rectRadius: 0.03,
+      });
+
+      slide.addText(
+        `⚡ Top Host: ${topFile?.topEndpoint || 'N/A'} • Class: ${topFile?.classifications[0] || 'Malicious'} • ${topFile?.count ?? 0} hits`,
+        {
+          x: leftX + 0.22,
+          y: contentY + contentH - 0.43,
+          w: leftW - 0.44,
+          h: 0.32,
+          fontSize: 6.5,
+          color: LIGHT.textSecondary,
+          fontFace: FONT,
+          valign: 'middle',
+        }
+      );
+
+      // Right Column: Ranked Threat Files & Payloads Table
+      const rightX = 5.05;
+      const rightW = 4.45;
+
+      slide.addShape(pres.ShapeType.roundRect, {
+        x: rightX,
+        y: contentY,
+        w: rightW,
+        h: contentH,
+        fill: { color: LIGHT.bgCard },
+        line: { color: LIGHT.border, width: 1 },
+        rectRadius: 0.06,
+      });
+
+      slide.addText('// RANKED THREAT FILES & PAYLOADS', {
+        x: rightX + 0.2,
+        y: contentY + 0.12,
+        w: 4.0,
+        h: 0.22,
+        fontSize: 9.5,
+        bold: true,
+        color: LIGHT.purple,
+        fontFace: FONT,
+      });
+
+      slide.addText('Telemetry metrics including detection count & target host', {
+        x: rightX + 0.2,
+        y: contentY + 0.32,
+        w: 4.0,
+        h: 0.18,
+        fontSize: 7,
+        color: LIGHT.textMuted,
+        fontFace: FONT,
+      });
+
+      const threatTableRows: PptxGenJS.TableRow[] = [
+        [
+          makeCell('RANK', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 6.8, align: 'center' }),
+          makeCell('FILE / PAYLOAD', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 6.8 }),
+          makeCell('CLASSIFICATION', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 6.8 }),
+          makeCell('TARGET HOST', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 6.8 }),
+          makeCell('DETECTIONS', { fill: { color: LIGHT.bgHeader }, color: LIGHT.textWhite, bold: true, fontSize: 6.8, align: 'right' }),
+        ],
+        ...threatFiles.slice(0, 7).map((f, idx) => {
+          const rowBg = idx % 2 === 1 ? LIGHT.bgCardAlt : LIGHT.bgCard;
+          const isHigh = f.count >= 10;
+          const primaryClass = f.classifications[0] || 'Malware';
+          return [
+            makeCell(`#${idx + 1}`, { fill: { color: rowBg }, color: LIGHT.textMuted, fontSize: 6.5, align: 'center', bold: true }),
+            makeCell(f.fileName.length > 20 ? f.fileName.slice(0, 20) + '…' : f.fileName, {
+              fill: { color: rowBg },
+              color: LIGHT.textPrimary,
+              fontSize: 6.5,
+              bold: true,
+            }),
+            makeCell(primaryClass.length > 15 ? primaryClass.slice(0, 15) + '…' : primaryClass, {
+              fill: { color: rowBg },
+              color: LIGHT.cyan,
+              fontSize: 6.5,
+              bold: true,
+            }),
+            makeCell(f.topEndpoint.length > 14 ? f.topEndpoint.slice(0, 14) + '…' : f.topEndpoint, {
+              fill: { color: rowBg },
+              color: LIGHT.textSecondary,
+              fontSize: 6.5,
+            }),
+            makeCell(f.count.toLocaleString(), {
+              fill: { color: rowBg },
+              color: isHigh ? LIGHT.red : LIGHT.purple,
+              fontSize: 6.8,
+              align: 'right',
+              bold: true,
+            }),
+          ];
+        }),
+      ];
+
+      slide.addTable(threatTableRows, {
+        x: rightX + 0.15,
+        y: contentY + 0.54,
+        w: rightW - 0.3,
+        colW: [0.45, 1.45, 1.05, 0.75, 0.45],
+        border: { type: 'solid', pt: 0.5, color: LIGHT.border },
+      });
+    }
+
+    addLightSlideFooter(slide, 5);
+  }
+
+  // ============================================================
+  // SLIDE 6: ENDPOINT DETECTIONS & DENSITY (LIGHT MODE)
+  // ============================================================
+  {
+    const slide = pres.addSlide();
+    addLightSlideHeader(
+      slide,
+      '05. ENDPOINT TELEMETRY',
       'Top Endpoints by Detection Density',
       'Endpoints exhibiting the highest concentration of threat activity and security telemetry during the reporting period.'
     );
@@ -1168,17 +1475,17 @@ export async function generateReportPowerPoint({
       border: { type: 'solid', pt: 0.5, color: LIGHT.border },
     });
 
-    addLightSlideFooter(slide, 5);
+    addLightSlideFooter(slide, 6);
   }
 
   // ============================================================
-  // SLIDE 6: REGIONAL THREAT HOTSPOTS (LIGHT MODE)
+  // SLIDE 7: REGIONAL THREAT HOTSPOTS (LIGHT MODE)
   // ============================================================
   {
     const slide = pres.addSlide();
     addLightSlideHeader(
       slide,
-      '05. REGIONAL RISK',
+      '06. REGIONAL RISK',
       'Regional Threat Hotspots & Site Velocities',
       'Geographical distribution of incident activity and site-level risk scoring across corporate offices.'
     );
@@ -1302,17 +1609,17 @@ export async function generateReportPowerPoint({
       border: { type: 'solid', pt: 0.5, color: LIGHT.border },
     });
 
-    addLightSlideFooter(slide, 6);
+    addLightSlideFooter(slide, 7);
   }
 
   // ============================================================
-  // SLIDE 7: PERSISTENT RISKY ENDPOINTS (LIGHT MODE)
+  // SLIDE 8: PERSISTENT RISKY ENDPOINTS (LIGHT MODE)
   // ============================================================
   {
     const slide = pres.addSlide();
     addLightSlideHeader(
       slide,
-      '06. PERSISTENT THREATS',
+      '07. PERSISTENT THREATS',
       'Persistent & Chronic Risky Endpoints',
       'Endpoints repeatedly flagged across multiple consecutive months indicating unpatched vulnerabilities or chronic malware.'
     );
@@ -1473,17 +1780,17 @@ export async function generateReportPowerPoint({
       });
     }
 
-    addLightSlideFooter(slide, 7);
+    addLightSlideFooter(slide, 8);
   }
 
   // ============================================================
-  // SLIDE 8: INCIDENT RESOLUTION STATUS & FUNNEL (LIGHT MODE)
+  // SLIDE 9: INCIDENT RESOLUTION STATUS & FUNNEL (LIGHT MODE)
   // ============================================================
   {
     const slide = pres.addSlide();
     addLightSlideHeader(
       slide,
-      '07. INCIDENT LIFECYCLE',
+      '08. INCIDENT LIFECYCLE',
       'Incident Resolution Status & Triage Velocities',
       'Operational response metrics, funnel closure rates, and monthly SOC remediation trajectory.'
     );
@@ -1641,17 +1948,17 @@ export async function generateReportPowerPoint({
       border: { type: 'solid', pt: 0.5, color: LIGHT.border },
     });
 
-    addLightSlideFooter(slide, 8);
+    addLightSlideFooter(slide, 9);
   }
 
   // ============================================================
-  // SLIDE 9: INFRA <-> EDR ASSET RECONCILIATION (LIGHT MODE)
+  // SLIDE 10: INFRA <-> EDR ASSET RECONCILIATION (LIGHT MODE)
   // ============================================================
   {
     const slide = pres.addSlide();
     addLightSlideHeader(
       slide,
-      '08. ASSET HYGIENE',
+      '09. ASSET HYGIENE',
       'Infra ↔ EDR Asset Reconciliation',
       'Inventory reconciliation identifying coverage blind spots, unmonitored devices, and ghost agent endpoints.'
     );
@@ -1840,7 +2147,7 @@ export async function generateReportPowerPoint({
       }
     }
 
-    addLightSlideFooter(slide, 9);
+    addLightSlideFooter(slide, 10);
   }
 
   // Generate binary presentation blob

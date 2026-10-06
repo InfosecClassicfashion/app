@@ -133,6 +133,42 @@ export interface ResolutionData {
   trendByMonth: { month: string; resolved: number; unresolved: number; inProgress: number }[];
 }
 
+export interface ThreatFileSummary {
+  fileName: string;
+  filePath: string;
+  count: number;
+  classifications: string[];
+  topEndpoint: string;
+  confidence: string;
+  originatingApps: string[];
+}
+
+export interface OriginatingAppSummary {
+  appName: string;
+  count: number;
+  topClassification: string;
+  topFile: string;
+  maliciousCount: number;
+}
+
+export interface MajorAlertItem {
+  id: string;
+  fileName: string;
+  filePath: string;
+  appName: string;
+  threatDetails: string;
+  classification: string;
+  confidence: string;
+  endpoint: string;
+  site: string;
+  engine: string;
+  status: string;
+  reportedTime: Date | null;
+  actions: string;
+  hash: string;
+  policy: string;
+}
+
 export interface AnalyticsResult {
   // Executive summary
   kpis: KPIMetric[];
@@ -151,6 +187,9 @@ export interface AnalyticsResult {
   heatmapDayhour: HeatmapCell[];
   heatmapSiteClassification: HeatmapCell[];
   heatmapWeeklyThreat: HeatmapCell[];
+  topThreatFiles: ThreatFileSummary[];
+  topOriginatingApps: OriginatingAppSummary[];
+  majorAlerts: MajorAlertItem[];
 
   // Endpoints
   topEndpoints: { endpoint: string; count: number }[];

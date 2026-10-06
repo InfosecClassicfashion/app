@@ -127,8 +127,9 @@
   --border-subtle:  rgba(148,163,184,0.35);
   --border-accent:  rgba(139,92,246,0.4);
   --text-primary:   #0F172A;
-  --text-secondary: #475569;
-  --text-muted:     #94A3B8;
+  --text-secondary: #334155;
+  --text-muted:     #64748B;
+  --text-dim:       #94A3B8;
 
   --background:           #F8FAFC;
   --foreground:           #0F172A;

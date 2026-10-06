@@ -127,15 +127,15 @@ export default function SummaryPage() {
   const getBadgeStyle = (variant?: string) => {
     switch (variant) {
       case 'emerald':
-        return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30';
+        return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30';
       case 'amber':
-        return 'bg-amber-500/10 text-amber-400 border-amber-500/30';
+        return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30';
       case 'red':
-        return 'bg-rose-500/10 text-rose-400 border-rose-500/30';
+        return 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30';
       case 'cyan':
-        return 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30';
+        return 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/30';
       case 'blue':
-        return 'bg-blue-500/10 text-blue-400 border-blue-500/30';
+        return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30';
       default:
         return 'bg-[var(--accent-purple)]/15 text-[var(--accent-purple)] border-[var(--accent-purple)]/30';
     }
@@ -144,13 +144,13 @@ export default function SummaryPage() {
   const getToneStyle = (tone?: string) => {
     switch (tone) {
       case 'positive':
-        return 'text-emerald-400';
+        return 'text-emerald-600 dark:text-emerald-400 font-semibold';
       case 'warning':
-        return 'text-amber-400';
+        return 'text-amber-600 dark:text-amber-400 font-semibold';
       case 'danger':
-        return 'text-rose-400';
+        return 'text-rose-600 dark:text-rose-400 font-semibold';
       default:
-        return 'text-[var(--text-primary)]';
+        return 'text-[var(--text-primary)] font-semibold';
     }
   };
 
@@ -161,7 +161,7 @@ export default function SummaryPage() {
   return (
     <div className="p-4 md:p-6 space-y-6 page-enter max-w-7xl mx-auto">
       {/* ── Page Header Block ── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-white/[0.08]">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-[var(--border-subtle)]">
         <div>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-600/25">
@@ -185,14 +185,14 @@ export default function SummaryPage() {
         {/* Action Controls Toolbar */}
         <div className="flex flex-wrap items-center gap-2 print:hidden">
           {/* View Mode Toggle */}
-          <div className="bg-[var(--bg-elevated)] p-1 rounded-lg border border-white/[0.08] flex items-center gap-1">
+          <div className="bg-[var(--bg-elevated)] p-1 rounded-lg border border-[var(--border-subtle)] flex items-center gap-1">
             <button
               onClick={() => setViewMode('full')}
               className={cn(
                 'px-3 py-1.5 rounded-md text-xs font-medium transition-all',
                 viewMode === 'full'
                   ? 'bg-[var(--accent-purple)] text-white shadow-sm'
-                  : 'text-[var(--text-muted)] hover:text-white'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
               )}
             >
               Full Analysis
@@ -203,7 +203,7 @@ export default function SummaryPage() {
                 'px-3 py-1.5 rounded-md text-xs font-medium transition-all',
                 viewMode === 'briefing'
                   ? 'bg-[var(--accent-purple)] text-white shadow-sm'
-                  : 'text-[var(--text-muted)] hover:text-white'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
               )}
             >
               Briefing Only
@@ -217,27 +217,27 @@ export default function SummaryPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-8 gap-1.5 text-xs border-white/10 text-[var(--text-secondary)] hover:text-white bg-[var(--bg-card)]"
+                  className="h-8 gap-1.5 text-xs border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-card)]"
                 >
                   <FontAwesomeIcon
                     icon={copiedType ? faCheck : faCopy}
-                    className={cn('w-3.5 h-3.5', copiedType ? 'text-emerald-400' : '')}
+                    className={cn('w-3.5 h-3.5', copiedType ? 'text-emerald-500 dark:text-emerald-400' : '')}
                   />
                   <span>{copiedType ? 'Copied!' : 'Copy Text'}</span>
                 </Button>
               }
             />
-            <DropdownMenuContent align="end" className="bg-[var(--bg-elevated)] border-white/10 text-[var(--text-primary)]">
+            <DropdownMenuContent align="end" className="bg-[var(--bg-card)] border-[var(--border-subtle)] text-[var(--text-primary)]">
               <DropdownMenuItem
                 onClick={() => handleCopy('text')}
-                className="text-xs cursor-pointer focus:bg-white/[0.05]"
+                className="text-xs cursor-pointer focus:bg-[var(--bg-elevated)]"
               >
                 <FontAwesomeIcon icon={faFileLines} className="w-3.5 h-3.5 mr-2 text-[var(--text-muted)]" />
                 Copy Clean Text
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => handleCopy('markdown')}
-                className="text-xs cursor-pointer focus:bg-white/[0.05]"
+                className="text-xs cursor-pointer focus:bg-[var(--bg-elevated)]"
               >
                 <FontAwesomeIcon icon={faFileCode} className="w-3.5 h-3.5 mr-2 text-purple-400" />
                 Copy Formatted Markdown
@@ -252,24 +252,24 @@ export default function SummaryPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-8 gap-1.5 text-xs border-white/10 text-[var(--text-secondary)] hover:text-white bg-[var(--bg-card)]"
+                  className="h-8 gap-1.5 text-xs border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-card)]"
                 >
                   <FontAwesomeIcon icon={faDownload} className="w-3.5 h-3.5" />
                   <span>Download</span>
                 </Button>
               }
             />
-            <DropdownMenuContent align="end" className="bg-[var(--bg-elevated)] border-white/10 text-[var(--text-primary)]">
+            <DropdownMenuContent align="end" className="bg-[var(--bg-card)] border-[var(--border-subtle)] text-[var(--text-primary)]">
               <DropdownMenuItem
                 onClick={() => handleDownload('md')}
-                className="text-xs cursor-pointer focus:bg-white/[0.05]"
+                className="text-xs cursor-pointer focus:bg-[var(--bg-elevated)]"
               >
                 <FontAwesomeIcon icon={faFileCode} className="w-3.5 h-3.5 mr-2 text-cyan-400" />
                 Markdown Document (.md)
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => handleDownload('txt')}
-                className="text-xs cursor-pointer focus:bg-white/[0.05]"
+                className="text-xs cursor-pointer focus:bg-[var(--bg-elevated)]"
               >
                 <FontAwesomeIcon icon={faFileLines} className="w-3.5 h-3.5 mr-2 text-amber-400" />
                 Plain Text Document (.txt)
@@ -282,10 +282,10 @@ export default function SummaryPage() {
             variant="outline"
             size="sm"
             onClick={handlePrint}
-            className="h-8 gap-1.5 text-xs border-white/10 text-[var(--text-secondary)] hover:text-white bg-[var(--bg-card)]"
+            className="h-8 gap-1.5 text-xs border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-card)]"
             title="Print or save as PDF"
           >
-            <FontAwesomeIcon icon={faPrint} className="w-3.5 h-3.5 text-slate-300" />
+            <FontAwesomeIcon icon={faPrint} className="w-3.5 h-3.5 text-[var(--text-muted)]" />
             <span className="hidden sm:inline">Print</span>
           </Button>
 
@@ -304,21 +304,21 @@ export default function SummaryPage() {
 
       {/* ── Metadata Bar ── */}
       <div className="flex flex-wrap items-center gap-2 text-xs">
-        <Badge variant="outline" className="border-white/10 bg-white/[0.02] text-[var(--text-secondary)] px-2.5 py-1">
-          Account: <span className="font-semibold text-white ml-1">{summary.metadata.accountName}</span>
+        <Badge variant="outline" className="border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] px-2.5 py-1">
+          Account: <span className="font-semibold text-[var(--text-primary)] ml-1">{summary.metadata.accountName}</span>
         </Badge>
-        <Badge variant="outline" className="border-white/10 bg-white/[0.02] text-[var(--text-secondary)] px-2.5 py-1">
-          Events: <span className="font-semibold text-white ml-1">{summary.metadata.totalIncidents.toLocaleString()}</span>
+        <Badge variant="outline" className="border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] px-2.5 py-1">
+          Events: <span className="font-semibold text-[var(--text-primary)] ml-1">{summary.metadata.totalIncidents.toLocaleString()}</span>
         </Badge>
         <Badge
           variant="outline"
           className={cn(
             'px-2.5 py-1 gap-1',
             summary.metadata.momDirection === 'up'
-              ? 'border-amber-500/30 text-amber-400 bg-amber-500/10'
+              ? 'border-amber-500/30 text-amber-600 dark:text-amber-400 bg-amber-500/10'
               : summary.metadata.momDirection === 'down'
-              ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10'
-              : 'border-white/10 text-slate-400'
+              ? 'border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10'
+              : 'border-[var(--border-subtle)] text-[var(--text-muted)]'
           )}
         >
           <FontAwesomeIcon
@@ -327,7 +327,7 @@ export default function SummaryPage() {
           />
           MoM Velocity: {summary.metadata.momDeltaPct > 0 ? '+' : ''}{summary.metadata.momDeltaPct}%
         </Badge>
-        <Badge variant="outline" className="border-white/10 bg-white/[0.02] text-[var(--text-dim)] px-2.5 py-1 ml-auto hidden md:inline-flex">
+        <Badge variant="outline" className="border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-dim)] px-2.5 py-1 ml-auto hidden md:inline-flex">
           Generated: {summary.metadata.generatedAt}
         </Badge>
       </div>
@@ -353,10 +353,10 @@ export default function SummaryPage() {
           {summary.executiveBriefing.criticalMetrics.map((m, idx) => (
             <div
               key={idx}
-              className="p-3.5 rounded-lg bg-black/20 border border-white/[0.06] flex flex-col justify-between"
+              className="p-3.5 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] flex flex-col justify-between"
             >
               <span className="text-[11px] font-medium text-[var(--text-muted)]">{m.label}</span>
-              <span className="text-xl md:text-2xl font-bold tracking-tight text-white mt-1 tabular-nums">
+              <span className="text-xl md:text-2xl font-bold tracking-tight text-[var(--text-primary)] mt-1 tabular-nums">
                 {m.value}
               </span>
               <span className="text-[10px] text-[var(--accent-purple)] mt-1 font-medium truncate">
@@ -367,7 +367,7 @@ export default function SummaryPage() {
         </div>
 
         {/* Executive Bullet Highlights */}
-        <div className="mt-5 pt-4 border-t border-white/[0.08]">
+        <div className="mt-5 pt-4 border-t border-[var(--border-subtle)]">
           <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)] mb-3">
             Key Telemetry Takeaways
           </h4>
@@ -393,8 +393,8 @@ export default function SummaryPage() {
             className={cn(
               'px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-all border',
               activeSection === 'all'
-                ? 'bg-white/10 text-white border-white/20'
-                : 'bg-transparent text-[var(--text-secondary)] border-white/5 hover:bg-white/[0.04]'
+                ? 'bg-[var(--accent-purple)]/20 text-[var(--accent-purple)] border-[var(--accent-purple)]/40 font-semibold'
+                : 'bg-transparent text-[var(--text-secondary)] border-[var(--border-subtle)] hover:bg-[var(--bg-elevated)]'
             )}
           >
             All Sections ({summary.sections.length})
@@ -407,10 +407,10 @@ export default function SummaryPage() {
                 'px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-all border flex items-center gap-1.5',
                 activeSection === s.id
                   ? 'bg-[var(--accent-purple)]/20 text-[var(--accent-purple)] border-[var(--accent-purple)]/40 font-semibold'
-                  : 'bg-transparent text-[var(--text-secondary)] border-white/5 hover:bg-white/[0.04]'
+                  : 'bg-transparent text-[var(--text-secondary)] border-[var(--border-subtle)] hover:bg-[var(--bg-elevated)]'
               )}
             >
-              <FontAwesomeIcon icon={getSectionIcon(s.id)} className="w-3 h-3 text-[var(--text-dim)]" />
+              <FontAwesomeIcon icon={getSectionIcon(s.id)} className="w-3 h-3 text-[var(--text-muted)]" />
               {s.title.replace(/^\d+\.\s*/, '')}
             </button>
           ))}
@@ -419,11 +419,11 @@ export default function SummaryPage() {
             className={cn(
               'px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-all border flex items-center gap-1.5',
               activeSection === 'action-plan'
-                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40 font-semibold'
-                : 'bg-transparent text-[var(--text-secondary)] border-white/5 hover:bg-white/[0.04]'
+                ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/40 font-semibold'
+                : 'bg-transparent text-[var(--text-secondary)] border-[var(--border-subtle)] hover:bg-[var(--bg-elevated)]'
             )}
           >
-            <FontAwesomeIcon icon={faListCheck} className="w-3 h-3 text-[var(--text-dim)]" />
+            <FontAwesomeIcon icon={faListCheck} className="w-3 h-3 text-[var(--text-muted)]" />
             Action Plan
           </button>
         </div>
@@ -436,12 +436,12 @@ export default function SummaryPage() {
             <div
               key={section.id}
               id={section.id}
-              className="glass-card p-5 md:p-6 rounded-xl border border-white/[0.08] hover:border-white/[0.12] transition-colors"
+              className="glass-card p-5 md:p-6 rounded-xl border border-[var(--border-subtle)] hover:border-[var(--border-accent)] transition-colors"
             >
               {/* Section Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-white/[0.06]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[var(--border-subtle)]">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/10 flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] flex items-center justify-center flex-shrink-0">
                     <FontAwesomeIcon icon={getSectionIcon(section.id)} className="w-4 h-4 text-[var(--accent-purple)]" />
                   </div>
                   <div>
@@ -472,11 +472,11 @@ export default function SummaryPage() {
 
               {/* Key Data Points Grid */}
               {section.keyDataPoints.length > 0 && (
-                <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-3 pt-4 border-t border-white/[0.06]">
+                <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-3 pt-4 border-t border-[var(--border-subtle)]">
                   {section.keyDataPoints.map((dp, dpIdx) => (
                     <div
                       key={dpIdx}
-                      className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05] flex flex-col justify-between"
+                      className="p-3 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)] flex flex-col justify-between"
                     >
                       <span className="text-[11px] text-[var(--text-muted)] font-medium">
                         {dp.label}
@@ -485,7 +485,7 @@ export default function SummaryPage() {
                         {dp.value}
                       </span>
                       {dp.change && (
-                        <span className="text-[10px] text-[var(--text-dim)] mt-0.5 truncate">
+                        <span className="text-[10px] text-[var(--text-muted)] mt-0.5 truncate">
                           {dp.change}
                         </span>
                       )}
@@ -496,14 +496,14 @@ export default function SummaryPage() {
 
               {/* Key Observations Box */}
               {section.takeaways.length > 0 && (
-                <div className="mt-4 p-3.5 rounded-lg bg-[var(--bg-elevated)]/60 border border-white/[0.06]">
+                <div className="mt-4 p-3.5 rounded-lg bg-[var(--bg-elevated)] border border-[var(--border-subtle)]">
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--accent-purple)] block mb-1.5">
                     Strategic Observations
                   </span>
                   <div className="space-y-1.5">
                     {section.takeaways.map((t, tIdx) => (
                       <div key={tIdx} className="flex items-start gap-2 text-xs text-[var(--text-secondary)]">
-                        <FontAwesomeIcon icon={faCheck} className="w-3 h-3 text-emerald-400 mt-0.5 flex-shrink-0" />
+                        <FontAwesomeIcon icon={faCheck} className="w-3 h-3 text-emerald-500 dark:text-emerald-400 mt-0.5 flex-shrink-0" />
                         <span>{t}</span>
                       </div>
                     ))}
@@ -517,10 +517,10 @@ export default function SummaryPage() {
 
       {/* ── Strategic SOC Action Plan & Recommendations ── */}
       {(viewMode === 'briefing' || activeSection === 'all' || activeSection === 'action-plan') && (
-        <div id="action-plan" className="glass-card p-5 md:p-6 rounded-xl border border-white/[0.08]">
-          <div className="flex items-center gap-3 pb-4 border-b border-white/[0.06]">
+        <div id="action-plan" className="glass-card p-5 md:p-6 rounded-xl border border-[var(--border-subtle)]">
+          <div className="flex items-center gap-3 pb-4 border-b border-[var(--border-subtle)]">
             <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
-              <FontAwesomeIcon icon={faListCheck} className="w-4 h-4 text-emerald-400" />
+              <FontAwesomeIcon icon={faListCheck} className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
             </div>
             <div>
               <h2 className="text-lg md:text-xl font-heading tracking-wider text-[var(--text-primary)]">
@@ -534,10 +534,10 @@ export default function SummaryPage() {
 
           <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-5">
             {/* Priority 1: Immediate */}
-            <div className="p-4 rounded-xl bg-white/[0.02] border border-rose-500/20 flex flex-col">
+            <div className="p-4 rounded-xl bg-[var(--bg-elevated)] border border-rose-500/20 flex flex-col">
               <div className="flex items-center gap-2 mb-3">
                 <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-rose-400">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-rose-600 dark:text-rose-400">
                   Priority 1: Immediate (24–48h)
                 </h3>
               </div>
@@ -547,7 +547,7 @@ export default function SummaryPage() {
               <div className="space-y-2.5 flex-1">
                 {summary.actionPlan.immediate.map((item, idx) => (
                   <div key={idx} className="flex items-start gap-2 text-xs text-[var(--text-secondary)] leading-relaxed">
-                    <span className="text-[10px] font-bold text-rose-400 flex-shrink-0 mt-0.5">{idx + 1}.</span>
+                    <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400 flex-shrink-0 mt-0.5">{idx + 1}.</span>
                     <span>{item}</span>
                   </div>
                 ))}
@@ -555,10 +555,10 @@ export default function SummaryPage() {
             </div>
 
             {/* Priority 2: Short Term */}
-            <div className="p-4 rounded-xl bg-white/[0.02] border border-amber-500/20 flex flex-col">
+            <div className="p-4 rounded-xl bg-[var(--bg-elevated)] border border-amber-500/20 flex flex-col">
               <div className="flex items-center gap-2 mb-3">
                 <span className="w-2 h-2 rounded-full bg-amber-500" />
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-amber-400">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">
                   Priority 2: Hardening (1–2 Wks)
                 </h3>
               </div>
@@ -568,7 +568,7 @@ export default function SummaryPage() {
               <div className="space-y-2.5 flex-1">
                 {summary.actionPlan.shortTerm.map((item, idx) => (
                   <div key={idx} className="flex items-start gap-2 text-xs text-[var(--text-secondary)] leading-relaxed">
-                    <span className="text-[10px] font-bold text-amber-400 flex-shrink-0 mt-0.5">{idx + 1}.</span>
+                    <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5">{idx + 1}.</span>
                     <span>{item}</span>
                   </div>
                 ))}
@@ -576,10 +576,10 @@ export default function SummaryPage() {
             </div>
 
             {/* Priority 3: Medium Term */}
-            <div className="p-4 rounded-xl bg-white/[0.02] border border-blue-500/20 flex flex-col">
+            <div className="p-4 rounded-xl bg-[var(--bg-elevated)] border border-blue-500/20 flex flex-col">
               <div className="flex items-center gap-2 mb-3">
                 <span className="w-2 h-2 rounded-full bg-blue-500" />
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-blue-400">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
                   Priority 3: Governance (30 Days)
                 </h3>
               </div>
@@ -589,7 +589,7 @@ export default function SummaryPage() {
               <div className="space-y-2.5 flex-1">
                 {summary.actionPlan.mediumTerm.map((item, idx) => (
                   <div key={idx} className="flex items-start gap-2 text-xs text-[var(--text-secondary)] leading-relaxed">
-                    <span className="text-[10px] font-bold text-blue-400 flex-shrink-0 mt-0.5">{idx + 1}.</span>
+                    <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5">{idx + 1}.</span>
                     <span>{item}</span>
                   </div>
                 ))}
@@ -600,7 +600,7 @@ export default function SummaryPage() {
       )}
 
       {/* ── Navigation Footer Links ── */}
-      <div className="pt-4 border-t border-white/[0.06] flex flex-wrap items-center justify-between gap-3 text-xs text-[var(--text-muted)] print:hidden">
+      <div className="pt-4 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-3 text-xs text-[var(--text-muted)] print:hidden">
         <div className="flex items-center gap-2">
           <span>Explore related analytics:</span>
           <Link href="/overview" className="text-[var(--accent-purple)] hover:underline font-medium">
@@ -620,7 +620,7 @@ export default function SummaryPage() {
           variant="ghost"
           size="sm"
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="text-xs text-[var(--text-muted)] hover:text-white"
+          className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
         >
           Back to Top ↑
         </Button>
@@ -628,4 +628,3 @@ export default function SummaryPage() {
     </div>
   );
 }
-

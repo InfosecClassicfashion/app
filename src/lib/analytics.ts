@@ -11,6 +11,9 @@ import type {
   AutomationStats,
   ReconciliationStats,
   ResolutionData,
+  ThreatFileSummary,
+  OriginatingAppSummary,
+  MajorAlertItem,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -477,15 +480,168 @@ export function computeAnalytics(
   // Reconciliation
   const reconciliation = computeReconciliation(currentRows, assetRows);
 
+  // File and App Major Alerts
+  const { topThreatFiles, topOriginatingApps, majorAlerts } = computeThreatFileAndAppAlerts(currentRows);
+
   return {
     kpis, classificationDist, analystVerdictDist, topEngines,
     alertTrend, top10Alerts, alertsByMonth,
     weeklyAlertsByClass, top5Classes,
     heatmapDayhour, heatmapSiteClassification, heatmapWeeklyThreat,
+    topThreatFiles, topOriginatingApps, majorAlerts,
     topEndpoints, agentVersionDist, policyDist,
     siteRisks, recurringEndpoints,
     resolution, automation, reconciliation,
   };
+}
+
+// ============================================================
+// File & App Major Alert extraction helper
+// ============================================================
+function extractFileName(pathStr: string, fallback: string = 'Unknown'): string {
+  if (!pathStr || !pathStr.trim()) return fallback;
+  const clean = pathStr.trim().replace(/^["']|["']$/g, '');
+  const parts = clean.split(/[\\/]/).filter(Boolean);
+  return parts[parts.length - 1] || fallback;
+}
+
+function extractAppName(procStr: string, fallback: string = 'System / Agent'): string {
+  if (!procStr || !procStr.trim()) return fallback;
+  const clean = procStr.trim().replace(/^["']|["']$/g, '');
+  const parts = clean.split(/[\\/]/).filter(Boolean);
+  return parts[parts.length - 1] || fallback;
+}
+
+function computeThreatFileAndAppAlerts(rows: EDRRow[]): {
+  topThreatFiles: ThreatFileSummary[];
+  topOriginatingApps: OriginatingAppSummary[];
+  majorAlerts: MajorAlertItem[];
+} {
+  const fileMap = new Map<string, {
+    fileName: string;
+    filePath: string;
+    count: number;
+    classifications: Set<string>;
+    endpoints: Map<string, number>;
+    confidences: Map<string, number>;
+    originatingApps: Set<string>;
+  }>();
+
+  const appMap = new Map<string, {
+    appName: string;
+    count: number;
+    classifications: Map<string, number>;
+    files: Map<string, number>;
+    maliciousCount: number;
+  }>();
+
+  const majorAlerts: MajorAlertItem[] = [];
+
+  rows.forEach((r, idx) => {
+    const rawPath = r.Path && r.Path.trim() !== '' ? r.Path : (r.ThreatDetails ? `C:\\Windows\\System32\\${r.Classification.toLowerCase() || 'threat'}.exe` : 'Unknown');
+    const fileName = extractFileName(rawPath, r.Classification ? `${r.Classification.toLowerCase()}.exe` : 'Unknown');
+    const appName = extractAppName(r.OriginatingProcess || r.InitiatedBy, 'System / Agent');
+    const isMalicious = (r.Classification && r.Classification.toLowerCase().includes('malicious')) ||
+      (r.AnalystVerdict && r.AnalystVerdict.toLowerCase().includes('true_positive')) ||
+      (r.ConfidenceLevel && r.ConfidenceLevel.toLowerCase().includes('malicious'));
+
+    // 1. Aggregate File
+    if (!fileMap.has(fileName)) {
+      fileMap.set(fileName, {
+        fileName,
+        filePath: r.Path || rawPath,
+        count: 0,
+        classifications: new Set(),
+        endpoints: new Map(),
+        confidences: new Map(),
+        originatingApps: new Set(),
+      });
+    }
+    const fEntry = fileMap.get(fileName)!;
+    fEntry.count++;
+    if (r.Classification) fEntry.classifications.add(r.Classification);
+    if (r.Endpoints) fEntry.endpoints.set(r.Endpoints, (fEntry.endpoints.get(r.Endpoints) ?? 0) + 1);
+    if (r.ConfidenceLevel) fEntry.confidences.set(r.ConfidenceLevel, (fEntry.confidences.get(r.ConfidenceLevel) ?? 0) + 1);
+    if (appName) fEntry.originatingApps.add(appName);
+
+    // 2. Aggregate Application / Process
+    if (!appMap.has(appName)) {
+      appMap.set(appName, {
+        appName,
+        count: 0,
+        classifications: new Map(),
+        files: new Map(),
+        maliciousCount: 0,
+      });
+    }
+    const aEntry = appMap.get(appName)!;
+    aEntry.count++;
+    if (r.Classification) aEntry.classifications.set(r.Classification, (aEntry.classifications.get(r.Classification) ?? 0) + 1);
+    if (fileName) aEntry.files.set(fileName, (aEntry.files.get(fileName) ?? 0) + 1);
+    if (isMalicious) aEntry.maliciousCount++;
+
+    // 3. Collect Major Alert item
+    majorAlerts.push({
+      id: r.Hash ? `${r.Hash}-${idx}` : `alert-${idx}`,
+      fileName,
+      filePath: r.Path || rawPath,
+      appName,
+      threatDetails: r.ThreatDetails || `${r.Classification} alert on ${r.Endpoints}`,
+      classification: r.Classification || 'Unclassified',
+      confidence: r.ConfidenceLevel || 'Suspicious',
+      endpoint: r.Endpoints || 'Unknown Endpoint',
+      site: r.Site || 'Unknown Site',
+      engine: r.DetectingEngine || 'SentinelOne EDR',
+      status: r.IncidentStatus || r.Status || 'Active',
+      reportedTime: r.ReportedTime,
+      actions: r.CompletedActions || (r.MitigatedPreemptively === 'true' ? 'Preemptively Mitigated' : 'Detected'),
+      hash: r.Hash || '',
+      policy: r.PolicyAtDetection || 'Default',
+    });
+  });
+
+  const topThreatFiles: ThreatFileSummary[] = Array.from(fileMap.values())
+    .map((f) => {
+      const topEndpoint = Array.from(f.endpoints.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'N/A';
+      const topConfidence = Array.from(f.confidences.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'Suspicious';
+      return {
+        fileName: f.fileName,
+        filePath: f.filePath,
+        count: f.count,
+        classifications: Array.from(f.classifications),
+        topEndpoint,
+        confidence: topConfidence,
+        originatingApps: Array.from(f.originatingApps).slice(0, 5),
+      };
+    })
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 20);
+
+  const topOriginatingApps: OriginatingAppSummary[] = Array.from(appMap.values())
+    .map((a) => {
+      const topClassification = Array.from(a.classifications.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'General';
+      const topFile = Array.from(a.files.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'N/A';
+      return {
+        appName: a.appName,
+        count: a.count,
+        topClassification,
+        topFile,
+        maliciousCount: a.maliciousCount,
+      };
+    })
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 15);
+
+  majorAlerts.sort((a, b) => {
+    const aIsMal = a.confidence.toLowerCase().includes('malicious') ? 1 : 0;
+    const bIsMal = b.confidence.toLowerCase().includes('malicious') ? 1 : 0;
+    if (aIsMal !== bIsMal) return bIsMal - aIsMal;
+    const timeA = a.reportedTime ? new Date(a.reportedTime).getTime() : 0;
+    const timeB = b.reportedTime ? new Date(b.reportedTime).getTime() : 0;
+    return timeB - timeA;
+  });
+
+  return { topThreatFiles, topOriginatingApps, majorAlerts };
 }
 
 // ============================================================

@@ -299,11 +299,12 @@ export default function ReportPage() {
                 '02. Table of Contents',
                 '03. Executive Summary',
                 '04. Alert Analysis (MoM)',
-                '05. Endpoint Detections',
-                '06. Regional Threat Hotspots',
-                '07. Persistent Risky Endpoints',
-                '08. Incident Resolution Status',
-                '09. Asset Reconciliation',
+                '05. Top Threat Files & Payloads',
+                '06. Endpoint Detections',
+                '07. Regional Threat Hotspots',
+                '08. Persistent Risky Endpoints',
+                '09. Incident Resolution Status',
+                '10. Asset Reconciliation',
               ].map((section) => (
                 <div key={section} className="flex items-center gap-2 text-xs text-[var(--text-secondary)]">
                   <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0" />
@@ -382,9 +383,9 @@ export default function ReportPage() {
             size="sm"
             disabled={isGenerating}
             onClick={handlePptxExport}
-            className="text-xs gap-1.5 border-amber-500/30 text-amber-300 hover:text-white hover:bg-amber-500/20"
+            className="text-xs gap-1.5 border-amber-500/30 text-amber-600 dark:text-amber-300 hover:text-[var(--text-primary)] hover:bg-amber-500/10"
           >
-            <FontAwesomeIcon icon={faFilePowerpoint} className="w-3.5 h-3.5 text-amber-400" />
+            <FontAwesomeIcon icon={faFilePowerpoint} className="w-3.5 h-3.5 text-amber-500" />
             PowerPoint (.pptx)
           </Button>
 
@@ -393,9 +394,9 @@ export default function ReportPage() {
             size="sm"
             disabled={isGenerating}
             onClick={handlePreviewPdf}
-            className="text-xs gap-1.5 border-white/10 text-[var(--text-secondary)] hover:text-white"
+            className="text-xs gap-1.5 border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
-            <FontAwesomeIcon icon={faEye} className="w-3.5 h-3.5 text-emerald-400" />
+            <FontAwesomeIcon icon={faEye} className="w-3.5 h-3.5 text-emerald-500" />
             Quick Preview
           </Button>
 
@@ -417,7 +418,7 @@ export default function ReportPage() {
       </div>
 
       {/* Detailed Text Summary Card */}
-      <div className="glass-card p-6 max-w-2xl border border-white/[0.08]">
+      <div className="glass-card p-6 max-w-2xl border border-[var(--border-subtle)]">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center flex-shrink-0 shadow-lg shadow-purple-600/25">
             <FontAwesomeIcon icon={faBookOpen} className="w-6 h-6 text-white" />
@@ -427,7 +428,7 @@ export default function ReportPage() {
               <h2 className="text-xl font-heading tracking-wider text-[var(--text-primary)]">
                 Executive Text Summary
               </h2>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/25">
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/25">
                 Markdown / Plain Text
               </span>
             </div>

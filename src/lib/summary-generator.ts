@@ -121,6 +121,15 @@ export function generateDashboardSummary(params: SummaryGeneratorParams): Detail
   const surgingTrend = [...alertTrends].sort((a, b) => b.deltaPercent - a.deltaPercent)[0];
   const decliningTrend = [...alertTrends].sort((a, b) => a.deltaPercent - b.deltaPercent)[0];
 
+  // 3b. Threat Files & Originating Application Vectors
+  const topFiles = analytics.topThreatFiles || [];
+  const leadingFile = topFiles[0];
+  const secondaryFile = topFiles[1];
+
+  const topApps = analytics.topOriginatingApps || [];
+  const leadingApp = topApps[0];
+  const secondaryApp = topApps[1];
+
   // 4. Detection Engines
   const topEngines = analytics.topEngines || [];
   const primaryEngine = topEngines[0] || { name: 'SentinelOne Agent', value: 0 };
@@ -204,6 +213,7 @@ export function generateDashboardSummary(params: SummaryGeneratorParams): Detail
     `Total incident volume logged at ${totalIncidents.toLocaleString()} across ${uniqueEndpointCount} endpoints (${trendDescription}).`,
     `Strong containment achieved with ${resolvedCount.toLocaleString()} incidents (${resolvedPct}%) resolved, leaving ${unresolvedCount.toLocaleString()} unresolved.`,
     `Primary threat vector was ${primaryClass.name} (${primaryClass.value.toLocaleString()} events, ${primaryClassPct}%), followed by ${secondaryClass.name} (${secondaryClass.value.toLocaleString()} events).`,
+    leadingFile ? `Major file-level alerts were dominated by ${leadingFile.fileName} (${leadingFile.count.toLocaleString()} alerts), launched via parent app ${leadingApp?.appName ?? 'system processes'}.` : `Major alert distributions remained steady across monitored application binaries.`,
     `Autonomous response engines successfully auto-mitigated ${autoResolvedCount.toLocaleString()} threats (${autoResolvedPct}% of all resolved items).`,
     `Site risk was highest at ${topSite.site} with ${topSite.current.toLocaleString()} registered incidents (Risk Score: ${topSite.riskScore}).`,
     `${highRiskRecurring.length} endpoints exhibit persistent multi-month risk, headed by ${topPersistentHost?.endpoint ?? 'None'} (${topPersistentHost?.totalIncidents ?? 0} total detections across ${topPersistentHost?.monthsAppeared ?? 0} months).`,
@@ -241,12 +251,13 @@ export function generateDashboardSummary(params: SummaryGeneratorParams): Detail
     },
     {
       id: 'threat-landscape',
-      title: '2. Threat Classification & Detection Mechanics',
-      subtitle: 'Deep analysis of malware families, attack vectors, detection engines, and analyst verdicts.',
+      title: '2. Threat Classification, File Payloads & App Vectors',
+      subtitle: 'Deep analysis of malware families, high-alert binaries, originating parent applications, and engine telemetry.',
       summaryBadge: `Top Threat: ${primaryClass.name} (${primaryClassPct}%)`,
       badgeVariant: 'red',
       paragraphs: [
         `Classification breakdown reveals that ${primaryClass.name} constituted the primary attack vector for ${currentMonthLabel}, representing ${primaryClass.value.toLocaleString()} events (${primaryClassPct}% of total volume). Secondary pressure was driven by ${secondaryClass.name} with ${secondaryClass.value.toLocaleString()} events (${secondaryClassPct}%), followed by ${tertiaryClass.name} with ${tertiaryClass.value.toLocaleString()} detections (${tertiaryClassPct}%).`,
+        `Payload and binary analysis demonstrates that major alerts were heavily concentrated around target file ${leadingFile ? `${leadingFile.fileName} (${leadingFile.count.toLocaleString()} detections, primarily impacting ${leadingFile.topEndpoint})` : 'system executables'}${secondaryFile ? ` and ${secondaryFile.fileName} (${secondaryFile.count.toLocaleString()} detections)` : ''}. On the process execution layer, parent application telemetry shows that ${leadingApp ? `${leadingApp.appName} generated the largest share of alerts (${leadingApp.count.toLocaleString()} executions)` : 'standard system utilities initiated the events'}${secondaryApp ? `, followed by ${secondaryApp.appName} (${secondaryApp.count.toLocaleString()} processes)` : ''}.`,
         surgingTrend && surgingTrend.deltaPercent > 0
           ? `Month-over-month trend analysis underscores notable vector migration: ${surgingTrend.classification} surged by ${surgingTrend.deltaPercent}% (+${surgingTrend.delta} incidents), representing the fastest-growing threat category. Conversely, ${decliningTrend?.classification ?? 'other vectors'} dropped by ${Math.abs(decliningTrend?.deltaPercent ?? 0)}%, showing effective containment of previous campaigns.`
           : `Vector distribution remained steady month-over-month, with no single classification exhibiting an abnormal anomalous spike.`,
@@ -255,14 +266,14 @@ export function generateDashboardSummary(params: SummaryGeneratorParams): Detail
       ],
       keyDataPoints: [
         { label: 'Primary Vector', value: primaryClass.name, change: `${primaryClassPct}% share (${primaryClass.value})`, tone: 'danger' },
-        { label: 'Secondary Vector', value: secondaryClass.name, change: `${secondaryClassPct}% share (${secondaryClass.value})`, tone: 'warning' },
-        { label: 'Top Detection Engine', value: primaryEngine.name, change: `${primaryEnginePct}% detections`, tone: 'positive' },
-        { label: 'True Positive Fidelity', value: `${truePosPct}%`, change: `${truePos.toLocaleString()} true positives`, tone: 'neutral' },
+        { label: 'Top Threat File', value: leadingFile?.fileName ?? 'None', change: `${leadingFile?.count ?? 0} detections`, tone: 'danger' },
+        { label: 'Top Originating App', value: leadingApp?.appName ?? 'None', change: `${leadingApp?.count ?? 0} executions`, tone: 'warning' },
+        { label: 'True Positive Fidelity', value: `${truePosPct}%`, change: `${truePos.toLocaleString()} true positives`, tone: 'positive' },
       ],
       takeaways: [
-        `${primaryClass.name} represents ${primaryClassPct}% of all activity and requires targeted playbook review.`,
-        `Detection engines rely heavily on ${primaryEngine.name}, which provided first-line defense for ${primaryEnginePct}% of alerts.`,
-        `False positive rate stands at ${falsePosPct}%, proving clean detection thresholds with minimal analyst fatigue.`,
+        `${primaryClass.name} represents ${primaryClassPct}% of all activity, with payload ${leadingFile?.fileName ?? 'binaries'} generating the highest file-level alerts.`,
+        `Parent application ${leadingApp?.appName ?? 'processes'} acted as the leading execution launchpad for suspicious behaviors.`,
+        `Detection engines rely heavily on ${primaryEngine.name}, which provided first-line defense for ${primaryEnginePct}% of alerts with ${falsePosPct}% false positive overhead.`,
       ],
     },
     {
